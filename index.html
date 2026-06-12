@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alkosto — Más que Hogar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { DEFAULT: '#E8651A', dark: '#C9520F', light: '#FDF0E7' },
+          ink: '#2C2C2C',
+        },
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&display=swap" rel="stylesheet" />
+<style>
+  html { scroll-behavior: smooth; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .page-enter { animation: fadeUp .35s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .toast-enter { animation: toastIn .25s ease both; }
+  @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .drop-enter { animation: dropIn .18s ease both; }
+  input[type=range] { accent-color: #E8651A; }
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-neutral-100 font-sans text-ink antialiased">
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useContext, createContext } = React;
+
+/* ============================== DATA ============================== */
+const BCV = 46.50;
+const usd = (n) => '$' + n.toLocaleString('en-US');
+const bsEq = (n) => 'Bs. ' + (n * BCV).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cuotaMes = (p) => Math.round(p / 6);
+const WHATSAPP = 'https://wa.me/584125550123';
+
+const STORES = [
+  { id: 'mercedes', name: 'Las Mercedes', addr: 'Av. Las Mercedes, entre Calle París y Calle Trinidad, Caracas', hours: 'Lun–Sáb 9:00 am – 7:00 pm · Dom 10:00 am – 4:00 pm' },
+  { id: 'chacao', name: 'Chacao', addr: 'Av. Francisco de Miranda, C.C. Lido, Chacao, Caracas', hours: 'Lun–Sáb 9:00 am – 7:00 pm · Dom 10:00 am – 4:00 pm' },
+];
+
+const RAW_PRODUCTS = [
+  /* ============ COCINAS Y HORNOS ============ */
+  {
+    id: 'kcgc506', brand: 'KitchenAid', name: 'Estufa Empotrable a Gas 6 Quemadores', model: 'KCGC506JSS',
+    price: 1849, oldPrice: 2099, cat: 'cocinas', tipo: 'Tope de cocina', stock: 'disponible',
+    sales: 98, rating: 4.8, reviews: 14, icon: '🍳', tone: 'from-zinc-300 via-zinc-100 to-zinc-400',
+    dims: { ancho: 90.8, alto: 18.9, fondo: 68.6 },
+    desc: 'Estufa empotrable a gas de estilo comercial con 6 quemadores y acabado en acero inoxidable. Potencia profesional para tu cocina, con quemadores Ultra Power™ de 20,000 BTU y rejillas convertibles de tres niveles.',
+    specs: ['Diseño de estilo comercial', 'Acero inoxidable', '2 quemadores Ultra Power™ 20,000 BTU', 'Rejillas convertibles de tres niveles', 'Quemador fuego lento 5,000 BTU', '3 quemadores de 15,000 BTU', 'Control con perillas'],
+    medidas: ['Ancho: 90.8 cm', 'Alto: 18.9 cm', 'Profundidad: 68.6 cm', 'Alimentación: Gas'],
+  },
+  {
+    id: 'kcgg536', brand: 'KitchenAid', name: 'Estufa Empotrable Vidrio Negro 5 Quemadores', model: 'KCGG536PBL',
+    price: 1249, oldPrice: 1399, cat: 'cocinas', tipo: 'Tope de cocina', stock: 'ultimas', locs: ['mercedes'],
+    sales: 74, rating: 4.6, reviews: 9, icon: '🍳', tone: 'from-zinc-800 via-zinc-600 to-zinc-900',
+    dims: { ancho: 92.4, alto: 18.5, fondo: 66 },
+    desc: 'Tope de cocina a gas con superficie de vidrio negro templado y 5 quemadores. Elegancia y rendimiento en 92.4 cm de ancho.',
+    specs: ['Superficie de vidrio negro templado', '5 quemadores a gas', 'Encendido eléctrico', 'Rejillas de hierro fundido', 'Control con perillas'],
+    medidas: ['Ancho: 92.4 cm', 'Alto: 18.5 cm', 'Profundidad: 66 cm', 'Alimentación: Gas'],
+  },
+  {
+    id: 'kcgs356', brand: 'KitchenAid', name: 'Estufa Empotrable Acero Inoxidable 5 Quemadores', model: 'KCGS356ESS',
+    price: 980, cat: 'cocinas', tipo: 'Tope de cocina',
+    sales: 81, rating: 4.7, reviews: 21, icon: '🍳', tone: 'from-slate-300 via-slate-100 to-slate-400',
+    dims: { ancho: 91.4, alto: 17.8, fondo: 53.7 },
+    desc: 'Tope de cocina a gas en acero inoxidable con 5 quemadores y encendido eléctrico a 120V. El balance perfecto entre precio y desempeño KitchenAid.',
+    specs: ['Acero inoxidable', '5 quemadores a gas', 'Encendido eléctrico 120V', 'Rejillas de hierro fundido'],
+    medidas: ['Ancho: 91.4 cm', 'Alto: 17.8 cm', 'Profundidad: 53.7 cm', 'Alimentación: Gas · 120V'],
+  },
+  {
+    id: 'wcm242b', brand: 'Whirlpool', name: 'Cafetera Empotrable', model: 'WCM242B',
+    price: 620, oldPrice: 699, cat: 'cocinas', tipo: 'Horno empotrable', locs: ['chacao'],
+    sales: 35, rating: 4.3, reviews: 5, icon: '☕', tone: 'from-stone-700 via-stone-500 to-stone-800',
+    desc: 'Cafetera empotrable Whirlpool para integrar a tu cocina. Café de calidad con un diseño que se funde con tus muebles.',
+    specs: ['Diseño empotrable', 'Preparación automática', 'Acabado oscuro premium'],
+    medidas: ['Alimentación: 110V'],
+  },
+  {
+    id: 'wk5915bd', brand: 'Whirlpool', name: 'Dispensador de Agua', model: 'WK5915BD',
+    price: 340, cat: 'cocinas', tipo: 'Cocina completa',
+    sales: 52, rating: 4.5, reviews: 11, icon: '💧', tone: 'from-sky-200 via-slate-100 to-sky-300',
+    dims: { ancho: 30, alto: 103, fondo: 33 },
+    desc: 'Dispensador de agua fría y caliente Whirlpool, ideal para el hogar o la oficina.',
+    specs: ['Agua fría y caliente', 'Bandeja antigoteo', 'Bajo consumo'],
+    medidas: ['Ancho: 30 cm', 'Alto: 103 cm', 'Profundidad: 33 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'mabe7660', brand: 'Mabe', name: 'Cocina a Gas 6 Hornillas con Horno', model: 'EM7660FX',
+    price: 689, oldPrice: 799, cat: 'cocinas', tipo: 'Cocina completa', volt: '220V', stock: 'ultimas', locs: ['chacao'],
+    sales: 66, rating: 4.4, reviews: 18, icon: '🔥', tone: 'from-neutral-300 via-neutral-100 to-neutral-400',
+    dims: { ancho: 76, alto: 96, fondo: 65 },
+    desc: 'Cocina completa Mabe de 6 hornillas con horno y asador. Rendimiento confiable para toda la familia.',
+    specs: ['6 hornillas a gas', 'Horno con asador', 'Tapa de vidrio templado'],
+    medidas: ['Ancho: 76 cm', 'Alto: 96 cm', 'Profundidad: 65 cm', 'Alimentación: Gas · 220V'],
+  },
+  {
+    id: 'wos51ec', brand: 'Whirlpool', name: 'Horno Empotrable Eléctrico 30"', model: 'WOS51EC0HS',
+    price: 1150, cat: 'cocinas', tipo: 'Horno empotrable', volt: '220V', locs: ['mercedes'],
+    sales: 44, rating: 4.6, reviews: 7, icon: '♨️', tone: 'from-zinc-400 via-zinc-200 to-zinc-500',
+    dims: { ancho: 76.2, alto: 73, fondo: 67 },
+    desc: 'Horno empotrable eléctrico de 30 pulgadas con convección real y acabado en acero inoxidable.',
+    specs: ['Convección real', 'Autolimpieza', 'Acero inoxidable resistente a huellas'],
+    medidas: ['Ancho: 76.2 cm', 'Alto: 73 cm', 'Profundidad: 67 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'osterhe64', brand: 'Oster', name: 'Horno Empotrable a Gas 60 cm', model: 'POS-HE6401',
+    price: 560, oldPrice: 620, cat: 'cocinas', tipo: 'Horno empotrable',
+    sales: 58, rating: 4.2, reviews: 13, icon: '♨️', tone: 'from-gray-300 via-gray-100 to-gray-400',
+    dims: { ancho: 60, alto: 60, fondo: 55 },
+    desc: 'Horno empotrable a gas Oster de 60 cm, con grill y temporizador. Calidad accesible para tu cocina.',
+    specs: ['Grill eléctrico', 'Temporizador', 'Puerta de doble vidrio'],
+    medidas: ['Ancho: 60 cm', 'Alto: 60 cm', 'Profundidad: 55 cm', 'Alimentación: Gas · 110V'],
+  },
+  /* ============ NEVERAS Y FREEZERS ============ */
+  {
+    id: 'lginsta', brand: 'LG', name: 'Nevera InstaView Door-in-Door 22 pies', model: 'GS65SPP1',
+    price: 1890, oldPrice: 2190, cat: 'neveras', sales: 91, rating: 4.7, reviews: 32, icon: '🧊', tone: 'from-slate-400 via-slate-200 to-slate-500',
+    dims: { ancho: 91.2, alto: 179, fondo: 73.8 },
+    desc: 'Nevera LG InstaView con panel de vidrio: toca dos veces y mira adentro sin abrir la puerta. Compresor Smart Inverter con 10 años de garantía.',
+    specs: ['InstaView Door-in-Door', 'Compresor Smart Inverter', 'Dispensador de agua y hielo', 'Multi Air Flow'],
+    medidas: ['Capacidad: 22 pies³', 'Ancho: 91.2 cm', 'Alto: 179 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'samsbs', brand: 'Samsung', name: 'Nevera Side by Side 28 pies', model: 'RS28A500ASL',
+    price: 1450, oldPrice: 1690, cat: 'neveras', sales: 78, rating: 4.6, reviews: 24, icon: '🧊', tone: 'from-zinc-400 via-zinc-200 to-zinc-500',
+    dims: { ancho: 91.2, alto: 178.5, fondo: 71.6 },
+    desc: 'Nevera Samsung Side by Side con tecnología Digital Inverter y dispensador de agua. Gran capacidad para familias grandes.',
+    specs: ['Compresor Digital Inverter', 'Dispensador de agua', 'All-Around Cooling', 'Iluminación LED'],
+    medidas: ['Capacidad: 28 pies³', 'Ancho: 91.2 cm', 'Alto: 178.5 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'wrt18', brand: 'Whirlpool', name: 'Nevera Top Mount 18 pies', model: 'WT1865A',
+    price: 820, cat: 'neveras', sales: 64, rating: 4.4, reviews: 15, icon: '🧊', tone: 'from-slate-300 via-white to-slate-400',
+    dims: { ancho: 75, alto: 176, fondo: 78 },
+    desc: 'Nevera Whirlpool de dos puertas con tecnología 6th Sense que regula la temperatura automáticamente.',
+    specs: ['Tecnología 6th Sense', 'Congelador superior', 'Bandejas de vidrio templado'],
+    medidas: ['Capacidad: 18 pies³', 'Ancho: 75 cm', 'Alto: 176 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'mabe14', brand: 'Mabe', name: 'Nevera Top Mount 14 pies', model: 'RMA1130X',
+    price: 560, oldPrice: 640, cat: 'neveras', stock: 'ultimas', locs: ['mercedes'],
+    sales: 49, rating: 4.3, reviews: 9, icon: '🧊', tone: 'from-gray-300 via-gray-100 to-gray-400',
+    dims: { ancho: 60, alto: 165, fondo: 69 },
+    desc: 'Nevera Mabe compacta y eficiente, ideal para apartamentos. Acabado en acero inoxidable.',
+    specs: ['Descongelación automática', 'Gavetas de frutas y verduras', 'Parrillas ajustables'],
+    medidas: ['Capacidad: 14 pies³', 'Ancho: 60 cm', 'Alto: 165 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'gtfreez', brand: 'G-Tronic', name: 'Freezer Horizontal 200 L', model: 'GT-FZ200',
+    price: 310, cat: 'neveras', sales: 41, rating: 4.2, reviews: 6, icon: '❄️', tone: 'from-sky-100 via-white to-sky-200',
+    dims: { ancho: 94, alto: 85, fondo: 52 },
+    desc: 'Freezer horizontal G-Tronic de 200 litros, perfecto para conservar alimentos por largos períodos.',
+    specs: ['Capacidad 200 L', 'Función dual: freezer o refrigerador', 'Cesta colgante'],
+    medidas: ['Ancho: 94 cm', 'Alto: 85 cm', 'Profundidad: 52 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'lgtop', brand: 'LG', name: 'Nevera Top Freezer 16 pies Smart Inverter', model: 'GT16BPP',
+    price: 940, cat: 'neveras', sales: 57, rating: 4.5, reviews: 12, icon: '🧊', tone: 'from-slate-400 via-slate-100 to-slate-500',
+    dims: { ancho: 70, alto: 172, fondo: 72 },
+    desc: 'Nevera LG con compresor Smart Inverter, silenciosa y de bajo consumo, con Door Cooling+.',
+    specs: ['Smart Inverter Compressor', 'Door Cooling+', 'Moist Balance Crisper'],
+    medidas: ['Capacidad: 16 pies³', 'Ancho: 70 cm', 'Alto: 172 cm', 'Alimentación: 110V'],
+  },
+  /* ============ LAVADORAS Y SECADORAS ============ */
+  {
+    id: 'wlav19', brand: 'Whirlpool', name: 'Lavadora Carga Superior 19 kg', model: 'WTW5057LW',
+    price: 620, oldPrice: 720, cat: 'lavadoras', stock: 'ultimas', locs: ['chacao'],
+    sales: 88, rating: 4.5, reviews: 19, icon: '🌀', tone: 'from-cyan-100 via-white to-cyan-200',
+    dims: { ancho: 69, alto: 107, fondo: 71 },
+    desc: 'Lavadora Whirlpool de carga superior con 19 kg de capacidad y agitador de doble acción.',
+    specs: ['Capacidad 19 kg', '12 ciclos de lavado', 'Tecnología 6th Sense', 'Tina de acero inoxidable'],
+    medidas: ['Ancho: 69 cm', 'Alto: 107 cm', 'Profundidad: 71 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'lgwm22', brand: 'LG', name: 'Lavadora Carga Frontal 22 kg AI DD', model: 'WM22VV2S6B',
+    price: 980, oldPrice: 1120, cat: 'lavadoras', sales: 95, rating: 4.8, reviews: 27, icon: '🌀', tone: 'from-slate-600 via-slate-400 to-slate-700',
+    dims: { ancho: 70, alto: 99, fondo: 76 },
+    desc: 'Lavadora LG de carga frontal con inteligencia artificial AI DD que detecta el tipo de tejido y optimiza el lavado.',
+    specs: ['AI Direct Drive', 'Vapor Steam+', 'TurboWash 360°', 'Conectividad ThinQ'],
+    medidas: ['Capacidad: 22 kg', 'Ancho: 70 cm', 'Alto: 99 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'samw17', brand: 'Samsung', name: 'Lavadora Digital Inverter 17 kg', model: 'WA17CG6441BD',
+    price: 540, cat: 'lavadoras', sales: 72, rating: 4.4, reviews: 14, icon: '🌀', tone: 'from-gray-200 via-white to-gray-300',
+    dims: { ancho: 64, alto: 105, fondo: 67 },
+    desc: 'Lavadora Samsung de carga superior con motor Digital Inverter y EcoBubble para un lavado potente en frío.',
+    specs: ['Digital Inverter', 'EcoBubble', 'Magic Dispenser', 'Wobble Technology'],
+    medidas: ['Capacidad: 17 kg', 'Ancho: 64 cm', 'Alto: 105 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'whsec18', brand: 'Whirlpool', name: 'Secadora a Gas 18 kg', model: '7MWGD1930JM',
+    price: 680, cat: 'lavadoras', sales: 53, rating: 4.6, reviews: 8, icon: '🌬️', tone: 'from-neutral-200 via-white to-neutral-300',
+    dims: { ancho: 74, alto: 109, fondo: 72 },
+    desc: 'Secadora Whirlpool a gas de gran capacidad con sensor de humedad AutoDry.',
+    specs: ['Sistema AutoDry', '13 ciclos de secado', 'Tambor de gran capacidad'],
+    medidas: ['Capacidad: 18 kg', 'Ancho: 74 cm', 'Alto: 109 cm', 'Alimentación: Gas · 110V'],
+  },
+  {
+    id: 'lgws20', brand: 'LG', name: 'Lavasecadora 20/12 kg', model: 'WD20VVS6',
+    price: 1240, oldPrice: 1390, cat: 'lavadoras', sales: 61, rating: 4.7, reviews: 11, icon: '🌀', tone: 'from-zinc-700 via-zinc-500 to-zinc-800',
+    dims: { ancho: 70, alto: 99, fondo: 77 },
+    desc: 'Lava y seca en un solo equipo: 20 kg de lavado y 12 kg de secado con AI DD y vapor.',
+    specs: ['Lava 20 kg / Seca 12 kg', 'AI Direct Drive', 'Steam+ antialérgenos', 'ThinQ WiFi'],
+    medidas: ['Ancho: 70 cm', 'Alto: 99 cm', 'Profundidad: 77 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'mabe18', brand: 'Mabe', name: 'Lavadora Semiautomática Doble Tina 18 kg', model: 'LMD8123',
+    price: 295, cat: 'lavadoras', sales: 83, rating: 4.1, reviews: 22, icon: '🌀', tone: 'from-blue-100 via-white to-blue-200',
+    dims: { ancho: 81, alto: 99, fondo: 49 },
+    desc: 'Lavadora Mabe de doble tina, económica y resistente, con ciclo de lavado y centrifugado independientes.',
+    specs: ['Doble tina', 'Capacidad 18 kg', 'Bajo consumo de agua'],
+    medidas: ['Ancho: 81 cm', 'Alto: 99 cm', 'Profundidad: 49 cm', 'Alimentación: 110V'],
+  },
+  /* ============ AIRES ACONDICIONADOS ============ */
+  {
+    id: 'gt12inv', brand: 'G-Tronic', name: 'Aire Acondicionado Split Inverter 12.000 BTU', model: 'GT-12INV',
+    price: 389, oldPrice: 450, cat: 'aires', volt: '220V', sales: 105, rating: 4.5, reviews: 31, icon: '❄️', tone: 'from-sky-100 via-white to-sky-200',
+    dims: { ancho: 80, alto: 28, fondo: 19 },
+    desc: 'Split inverter de 12.000 BTU con bajo consumo y refrigerante ecológico R410A.',
+    specs: ['Tecnología Inverter', '12.000 BTU', 'Modo sueño y turbo', 'Refrigerante R410A'],
+    medidas: ['Unidad interior: 80 × 28 × 19 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'gt18', brand: 'G-Tronic', name: 'Aire Acondicionado Split Inverter 18.000 BTU', model: 'GT-18INV',
+    price: 520, cat: 'aires', volt: '220V', sales: 76, rating: 4.4, reviews: 17, icon: '❄️', tone: 'from-cyan-100 via-white to-cyan-200',
+    dims: { ancho: 90, alto: 31, fondo: 21 },
+    desc: 'Split inverter de 18.000 BTU ideal para espacios de hasta 30 m². Silencioso y eficiente.',
+    specs: ['Tecnología Inverter', '18.000 BTU', 'Filtro antibacterial', 'Autolimpieza'],
+    medidas: ['Unidad interior: 90 × 31 × 21 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'lgdual24', brand: 'LG', name: 'Aire Split Dual Inverter 24.000 BTU', model: 'VM242H9',
+    price: 890, oldPrice: 990, cat: 'aires', volt: '220V', sales: 69, rating: 4.8, reviews: 23, icon: '❄️', tone: 'from-blue-100 via-white to-blue-200',
+    dims: { ancho: 99.8, alto: 34.5, fondo: 21 },
+    desc: 'Aire LG Dual Inverter de 24.000 BTU: enfría más rápido, ahorra hasta 70% de energía y funciona con ThinQ.',
+    specs: ['Dual Inverter Compressor', '24.000 BTU', 'Conectividad ThinQ WiFi', '10 años de garantía en compresor'],
+    medidas: ['Unidad interior: 99.8 × 34.5 × 21 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'sam12', brand: 'Samsung', name: 'Aire Split WindFree 12.000 BTU', model: 'AR12TSH',
+    price: 610, cat: 'aires', volt: '220V', sales: 58, rating: 4.6, reviews: 13, icon: '❄️', tone: 'from-indigo-100 via-white to-indigo-200',
+    dims: { ancho: 88.9, alto: 29.9, fondo: 21.5 },
+    desc: 'Tecnología WindFree de Samsung: enfría sin chorro de aire directo, con 23.000 microorificios.',
+    specs: ['WindFree Cooling', 'Digital Inverter Boost', 'Filtro Tri-Care', 'Modo IA'],
+    medidas: ['Unidad interior: 88.9 × 29.9 × 21.5 cm', 'Alimentación: 220V'],
+  },
+  {
+    id: 'osterport', brand: 'Oster', name: 'Aire Acondicionado Portátil 12.000 BTU', model: 'OS-PA12',
+    price: 420, cat: 'aires', stock: 'ultimas', locs: ['mercedes'], sales: 34, rating: 4.0, reviews: 7, icon: '❄️', tone: 'from-slate-200 via-white to-slate-300',
+    dims: { ancho: 44, alto: 70, fondo: 36 },
+    desc: 'Aire portátil Oster con ruedas, sin instalación fija. Incluye kit de ventana y control remoto.',
+    specs: ['Portátil con ruedas', '12.000 BTU', 'Deshumidificador integrado', 'Kit de ventana incluido'],
+    medidas: ['Ancho: 44 cm', 'Alto: 70 cm', 'Profundidad: 36 cm', 'Alimentación: 110V'],
+  },
+  /* ============ PEQUEÑOS ELECTRODOMÉSTICOS ============ */
+  {
+    id: 'osterbl', brand: 'Oster', name: 'Licuadora Reversible Motor 600W', model: 'BLSTMB-RBR',
+    price: 89, oldPrice: 105, cat: 'pequenos', sales: 134, rating: 4.6, reviews: 44, icon: '🥤', tone: 'from-red-200 via-orange-100 to-red-300',
+    desc: 'Licuadora Oster con tecnología reversible y vaso de vidrio refractario de 6 tazas.',
+    specs: ['Motor 600W reversible', 'Vaso de vidrio refractario', '3 velocidades + pulso', 'Cuchilla desmontable'],
+    medidas: ['Capacidad: 1.5 L', 'Alimentación: 110V'],
+  },
+  {
+    id: 'kamixer', brand: 'KitchenAid', name: 'Batidora de Pie Artisan 4.8 L', model: 'KSM150PSER',
+    price: 489, oldPrice: 540, cat: 'pequenos', locs: ['mercedes'], sales: 77, rating: 4.9, reviews: 38, icon: '🧁', tone: 'from-rose-200 via-rose-100 to-rose-300',
+    dims: { ancho: 22, alto: 35, fondo: 37 },
+    desc: 'La icónica batidora KitchenAid Artisan con bowl de acero inoxidable de 4.8 litros y 10 velocidades.',
+    specs: ['10 velocidades', 'Bowl acero inoxidable 4.8 L', 'Incluye batidor plano, globo y gancho', 'Cabezal inclinable'],
+    medidas: ['Ancho: 22 cm', 'Alto: 35 cm', 'Profundidad: 37 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'osterair', brand: 'Oster', name: 'Freidora de Aire Digital 5.5 L', model: 'CKSTAF55',
+    price: 120, cat: 'pequenos', sales: 112, rating: 4.5, reviews: 29, icon: '🍟', tone: 'from-zinc-700 via-zinc-500 to-zinc-800',
+    desc: 'Freidora de aire Oster de 5.5 litros con panel digital y 8 funciones preprogramadas. Cocina con hasta 99.5% menos grasa.',
+    specs: ['Capacidad 5.5 L', 'Panel digital táctil', '8 programas', 'Canasta antiadherente'],
+    medidas: ['Capacidad: 5.5 L', 'Alimentación: 110V'],
+  },
+  {
+    id: 'samm28', brand: 'Samsung', name: 'Microondas Grill 28 L', model: 'MG28J5215AS',
+    price: 180, oldPrice: 210, cat: 'pequenos', sales: 87, rating: 4.4, reviews: 16, icon: '📦', tone: 'from-gray-400 via-gray-200 to-gray-500',
+    dims: { ancho: 51.7, alto: 31, fondo: 47.6 },
+    desc: 'Microondas Samsung con grill y recubrimiento cerámico antibacterial fácil de limpiar.',
+    specs: ['Función Grill', 'Recubrimiento Ceramic Inside', 'Modo Eco', 'Descongelado rápido'],
+    medidas: ['Capacidad: 28 L', 'Ancho: 51.7 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'ostercaf', brand: 'Oster', name: 'Cafetera Programable 12 Tazas', model: 'BVSTDC12',
+    price: 65, cat: 'pequenos', sales: 96, rating: 4.3, reviews: 25, icon: '☕', tone: 'from-amber-200 via-orange-100 to-amber-300',
+    desc: 'Cafetera Oster programable de 12 tazas con función de pausa y sistema antigoteo.',
+    specs: ['Programable 24 h', '12 tazas', 'Sistema antigoteo', 'Filtro permanente lavable'],
+    medidas: ['Capacidad: 1.8 L', 'Alimentación: 110V'],
+  },
+  {
+    id: 'whmicro', brand: 'Whirlpool', name: 'Microondas 20 L', model: 'WM1807B',
+    price: 95, cat: 'pequenos', sales: 71, rating: 4.2, reviews: 10, icon: '📦', tone: 'from-neutral-700 via-neutral-500 to-neutral-800',
+    desc: 'Microondas Whirlpool compacto de 20 litros con 10 niveles de potencia.',
+    specs: ['10 niveles de potencia', 'Plato giratorio 25.5 cm', 'Bloqueo para niños'],
+    medidas: ['Capacidad: 20 L', 'Alimentación: 110V'],
+  },
+  {
+    id: 'kakettle', brand: 'KitchenAid', name: 'Hervidor Eléctrico 1.25 L', model: 'KEK1222ER',
+    price: 110, cat: 'pequenos', sales: 42, rating: 4.7, reviews: 9, icon: '🫖', tone: 'from-red-300 via-rose-100 to-red-400',
+    desc: 'Hervidor eléctrico KitchenAid de 1.25 L en acabado rojo imperio, con apagado automático.',
+    specs: ['Capacidad 1.25 L', 'Apagado automático', 'Base 360° sin cable', 'Indicador de nivel de agua'],
+    medidas: ['Capacidad: 1.25 L', 'Alimentación: 110V'],
+  },
+  /* ============ TELEVISORES Y AUDIO ============ */
+  {
+    id: 'samtv65', brand: 'Samsung', name: 'Smart TV Crystal UHD 65" 4K', model: 'UN65DU7000',
+    price: 749, oldPrice: 899, cat: 'tv', sales: 120, rating: 4.7, reviews: 52, icon: '📺', tone: 'from-indigo-900 via-slate-700 to-indigo-950',
+    dims: { ancho: 144.8, alto: 82.9, fondo: 6 },
+    desc: 'Smart TV Samsung 65 pulgadas con resolución 4K Crystal UHD, procesador Crystal 4K y Tizen OS.',
+    specs: ['Resolución 4K UHD', 'Procesador Crystal 4K', 'Tizen OS', 'PurColor', '3 puertos HDMI'],
+    medidas: ['Pantalla: 65"', 'Ancho: 144.8 cm', 'Alto: 82.9 cm (sin base)', 'Alimentación: 110V'],
+  },
+  {
+    id: 'lgoled55', brand: 'LG', name: 'LG OLED evo 55" 4K Smart TV', model: 'OLED55C4',
+    price: 1290, oldPrice: 1490, cat: 'tv', sales: 84, rating: 4.9, reviews: 34, icon: '📺', tone: 'from-black via-zinc-800 to-zinc-950',
+    dims: { ancho: 122.2, alto: 70.3, fondo: 4.5 },
+    desc: 'El mejor color en su clase: OLED evo con procesador α9 AI Gen7, Dolby Vision y webOS 24.',
+    specs: ['Panel OLED evo', 'Procesador α9 AI Gen7', 'Dolby Vision + Dolby Atmos', '120Hz para gaming', 'webOS 24'],
+    medidas: ['Pantalla: 55"', 'Ancho: 122.2 cm', 'Alto: 70.3 cm (sin base)', 'Alimentación: 110V'],
+  },
+  {
+    id: 'samq55', brand: 'Samsung', name: 'Smart TV QLED 55" 4K', model: 'QN55Q60D',
+    price: 620, cat: 'tv', sales: 92, rating: 4.6, reviews: 28, icon: '📺', tone: 'from-slate-800 via-slate-600 to-slate-900',
+    dims: { ancho: 123.2, alto: 70.7, fondo: 5.9 },
+    desc: 'QLED con 100% volumen de color, Quantum HDR y diseño AirSlim ultradelgado.',
+    specs: ['Panel QLED', 'Quantum HDR', 'Motion Xcelerator', 'Diseño AirSlim'],
+    medidas: ['Pantalla: 55"', 'Ancho: 123.2 cm', 'Alto: 70.7 cm (sin base)', 'Alimentación: 110V'],
+  },
+  {
+    id: 'samtv43', brand: 'Samsung', name: 'Smart TV 43" Full HD', model: 'UN43T5300',
+    price: 320, cat: 'tv', stock: 'ultimas', locs: ['chacao'], sales: 67, rating: 4.4, reviews: 18, icon: '📺', tone: 'from-slate-700 via-slate-500 to-slate-800',
+    dims: { ancho: 96.3, alto: 56, fondo: 7.4 },
+    desc: 'Smart TV Samsung 43 pulgadas Full HD con Tizen y HDR. Perfecto para habitaciones.',
+    specs: ['Full HD 1080p', 'HDR', 'Tizen OS', '2 puertos HDMI'],
+    medidas: ['Pantalla: 43"', 'Ancho: 96.3 cm', 'Alto: 56 cm (sin base)', 'Alimentación: 110V'],
+  },
+  {
+    id: 'lgsound', brand: 'LG', name: 'Soundbar 3.1 Canales 420W', model: 'S65Q',
+    price: 240, oldPrice: 280, cat: 'tv', sales: 51, rating: 4.5, reviews: 12, icon: '🔊', tone: 'from-zinc-800 via-zinc-600 to-zinc-900',
+    dims: { ancho: 100, alto: 6.3, fondo: 10.5 },
+    desc: 'Barra de sonido LG 3.1 con 420W, subwoofer inalámbrico y DTS Virtual:X.',
+    specs: ['3.1 canales · 420W', 'Subwoofer inalámbrico', 'DTS Virtual:X', 'Bluetooth y HDMI ARC'],
+    medidas: ['Ancho: 100 cm', 'Alto: 6.3 cm', 'Profundidad: 10.5 cm', 'Alimentación: 110V'],
+  },
+  {
+    id: 'lgtv75', brand: 'LG', name: 'Smart TV UHD 75" 4K', model: '75UT8050',
+    price: 1050, cat: 'tv', sales: 45, rating: 4.6, reviews: 8, icon: '📺', tone: 'from-indigo-950 via-slate-800 to-black',
+    dims: { ancho: 167.6, alto: 96.4, fondo: 6 },
+    desc: 'Pantalla gigante LG de 75 pulgadas 4K con procesador α5 AI Gen7 y webOS.',
+    specs: ['Resolución 4K UHD', 'Procesador α5 AI Gen7', 'webOS 24', 'Filmmaker Mode'],
+    medidas: ['Pantalla: 75"', 'Ancho: 167.6 cm', 'Alto: 96.4 cm (sin base)', 'Alimentación: 110V'],
+  },
+];
+
+const PRODUCTS = RAW_PRODUCTS.map((p) => ({
+  volt: '110V', stock: 'disponible', locs: ['mercedes', 'chacao'], oldPrice: null, dims: null, ...p,
+}));
+
+const FEATURED = ['kcgc506', 'samtv65', 'lgoled55', 'lginsta', 'gt12inv', 'lgwm22'];
+
+const CATEGORIES = [
+  { id: 'neveras', label: 'Neveras y Freezers', icon: '🧊' },
+  { id: 'lavadoras', label: 'Lavadoras y Secadoras', icon: '🌀' },
+  { id: 'aires', label: 'Aires Acondicionados', icon: '❄️' },
+  { id: 'cocinas', label: 'Cocinas y Hornos', icon: '🍳' },
+  { id: 'pequenos', label: 'Pequeños Electrodomésticos', icon: '☕' },
+  { id: 'tv', label: 'Televisores y Audio', icon: '📺' },
+];
+
+const BRANDS = ['KitchenAid', 'Whirlpool', 'LG', 'Samsung', 'G-Tronic', 'Oster'];
+
+/* ============================== CONTEXT ============================== */
+const Ctx = createContext(null);
+const useApp = () => useContext(Ctx);
+
+/* ============================== ATOMS ============================== */
+function Logo({ onClick, compact }) {
+  return (
+    <button onClick={onClick} className="flex flex-col items-center leading-none shrink-0 group" aria-label="Alkosto inicio">
+      <svg viewBox="0 0 24 24" className={compact ? 'w-5 h-5' : 'w-6 h-6'} fill="none" stroke="#E8651A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10.5V20h13v-9.5" />
+      </svg>
+      <span className={'font-extrabold tracking-tight text-ink ' + (compact ? 'text-lg' : 'text-2xl')}>alkosto</span>
+      {!compact && <span className="text-[10px] italic font-semibold text-brand -mt-0.5">Más que Hogar</span>}
+    </button>
+  );
+}
+
+function TasaPill({ dark }) {
+  return (
+    <span className={'inline-flex items-center gap-1 rounded-full text-[11px] font-semibold px-2.5 py-1 whitespace-nowrap ' + (dark ? 'bg-white/10 text-orange-300' : 'bg-brand-light text-brand-dark')}>
+      Tasa BCV hoy: Bs. 46.50/$
+      <button title="Actualizar tasa (demo)" className="hover:rotate-180 transition-transform duration-300">🔄</button>
+    </span>
+  );
+}
+
+function Stars({ rating, reviews, size }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className={'flex leading-none ' + (size === 'lg' ? 'text-base' : 'text-[13px]')}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <span key={i} className={i <= Math.round(rating) ? 'text-amber-400' : 'text-neutral-300'}>★</span>
+        ))}
+      </div>
+      <span className={size === 'lg' ? 'text-sm text-neutral-500 font-semibold' : 'text-[11px] text-neutral-400'}>{rating} ({reviews})</span>
+    </div>
+  );
+}
+
+function Price({ value, old, size }) {
+  const big = size === 'lg';
+  const pct = old ? Math.round((1 - value / old) * 100) : null;
+  return (
+    <div>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <span className={'font-extrabold text-brand ' + (big ? 'text-4xl' : 'text-lg')}>{usd(value)}</span>
+        {old && <span className={'line-through text-neutral-400 font-medium ' + (big ? 'text-lg' : 'text-xs')}>{usd(old)}</span>}
+        {old && <span className={'bg-red-600 text-white font-extrabold rounded ' + (big ? 'text-xs px-2 py-1' : 'text-[10px] px-1.5 py-0.5')}>-{pct}%</span>}
+      </div>
+      <div className={'text-neutral-400 font-medium ' + (big ? 'text-base mt-0.5' : 'text-[11px]')}>{bsEq(value)}</div>
+      <div className={'text-neutral-500 ' + (big ? 'text-sm mt-1' : 'text-[11px] mt-0.5')}>Desde <span className="font-semibold">${cuotaMes(value)}/mes</span> con <span className="font-bold text-yellow-600">Cashea</span></div>
+    </div>
+  );
+}
+
+function StockBadge({ stock }) {
+  return stock === 'disponible'
+    ? <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">● Disponible</span>
+    : <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">● Últimas unidades</span>;
+}
+
+function ProductImage({ p, className }) {
+  const cls = className || '';
+  return (
+    <div className={'bg-gradient-to-br ' + p.tone + ' flex items-center justify-center select-none ' + cls + (/text-/.test(cls) ? '' : ' text-7xl')}>
+      <span className="drop-shadow-sm">{p.icon}</span>
+    </div>
+  );
+}
+
+function HeartButton({ id }) {
+  const { wish, toggleWish } = useApp();
+  const active = wish.includes(id);
+  return (
+    <button onClick={(e) => { e.stopPropagation(); toggleWish(id); }} aria-label="Agregar a favoritos"
+      className={'w-8 h-8 rounded-full flex items-center justify-center transition-colors ' + (active ? 'bg-brand-light text-brand' : 'bg-white/90 text-neutral-400 hover:text-brand')}>
+      <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill={active ? '#E8651A' : 'none'} stroke="currentColor" strokeWidth="2">
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" />
+      </svg>
+    </button>
+  );
+}
+
+function ProductCard({ p }) {
+  const { navigate, addToCart } = useApp();
+  const pct = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : null;
+  return (
+    <div onClick={() => navigate('product', { id: p.id })}
+      className="bg-white rounded-2xl border border-neutral-200 hover:border-brand/40 hover:shadow-lg transition-all cursor-pointer flex flex-col overflow-hidden group w-full">
+      <div className="relative">
+        <ProductImage p={p} className="aspect-square w-full text-6xl" />
+        {pct && <span className="absolute top-2 left-2 bg-red-600 text-white text-[11px] font-extrabold rounded-md px-1.5 py-0.5">-{pct}%</span>}
+        <div className="absolute top-2 right-2"><HeartButton id={p.id} /></div>
+        <div className="absolute bottom-2 left-2"><StockBadge stock={p.stock} /></div>
+      </div>
+      <div className="p-3.5 flex flex-col gap-1.5 flex-1">
+        <span className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">{p.brand}</span>
+        <h3 className="text-sm font-bold leading-snug line-clamp-2 min-h-[2.5rem]">{p.name}</h3>
+        <Stars rating={p.rating} reviews={p.reviews} />
+        <Price value={p.price} old={p.oldPrice} />
+        <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+          className="mt-auto w-full bg-brand hover:bg-brand-dark text-white text-sm font-bold rounded-xl py-2.5 transition-colors">
+          Agregar al carrito
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ============================== SEARCH AUTOCOMPLETE ============================== */
+function SearchBox({ small }) {
+  const { navigate, search, setSearch } = useApp();
+  const [open, setOpen] = useState(false);
+  const q = search.trim().toLowerCase();
+  const prodMatches = q.length >= 2 ? PRODUCTS.filter((p) => (p.name + ' ' + p.brand + ' ' + p.model).toLowerCase().includes(q)).slice(0, 6) : [];
+  const catMatches = q.length >= 2 ? CATEGORIES.filter((c) => c.label.toLowerCase().includes(q)) : [];
+  const hasResults = prodMatches.length > 0 || catMatches.length > 0;
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (search.trim()) { navigate('category', { query: search }); setOpen(false); }
+  };
+  const go = (fn) => { fn(); setOpen(false); };
+
+  return (
+    <form onSubmit={submit} className="relative w-full">
+      <input value={search}
+        onChange={(e) => { setSearch(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder={small ? 'Busca en Alkosto…' : 'Busca neveras, cocinas, TVs y más…'}
+        className={'w-full rounded-full border border-neutral-300 bg-neutral-50 pl-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand ' + (small ? 'pr-11 py-2' : 'pr-11 py-2.5')} />
+      <button type="submit" aria-label="Buscar" className={'absolute right-1 top-1 bottom-1 rounded-full bg-brand hover:bg-brand-dark text-white flex items-center justify-center ' + (small ? 'w-8' : 'w-9')}>
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      </button>
+
+      {open && q.length >= 2 && (
+        <div className="drop-enter absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-neutral-200 shadow-xl z-50 overflow-hidden">
+          {!hasResults && (
+            <p className="px-4 py-4 text-sm text-neutral-500">Sin resultados para “{search}”. Prueba con otra palabra o <a href={WHATSAPP} target="_blank" rel="noopener" className="text-green-600 font-bold">consúltanos por WhatsApp</a>.</p>
+          )}
+          {catMatches.map((c) => (
+            <button key={c.id} type="button" onMouseDown={() => go(() => navigate('category', { cat: c.id }))}
+              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-brand-light text-left">
+              <span className="text-xl">{c.icon}</span>
+              <span className="text-sm font-bold flex-1">{c.label}</span>
+              <span className="text-[10px] uppercase tracking-wide text-neutral-400 font-bold">Departamento</span>
+            </button>
+          ))}
+          {catMatches.length > 0 && prodMatches.length > 0 && <div className="border-t border-neutral-100"></div>}
+          {prodMatches.map((p) => (
+            <button key={p.id} type="button" onMouseDown={() => go(() => navigate('product', { id: p.id }))}
+              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-50 text-left">
+              <ProductImage p={p} className="w-10 h-10 rounded-lg text-lg shrink-0" />
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-semibold leading-snug truncate">{p.name}</span>
+                <span className="block text-[11px] text-neutral-400">{p.brand} · {p.model}</span>
+              </span>
+              <span className="text-sm font-extrabold text-brand whitespace-nowrap">{usd(p.price)}</span>
+            </button>
+          ))}
+          {hasResults && (
+            <button type="button" onMouseDown={() => go(() => navigate('category', { query: search }))}
+              className="w-full px-4 py-3 text-sm font-bold text-brand hover:bg-brand-light text-left border-t border-neutral-100">
+              Ver todos los resultados para “{search}” →
+            </button>
+          )}
+        </div>
+      )}
+    </form>
+  );
+}
+
+/* ============================== NAVBAR ============================== */
+function MiTienda() {
+  const { myStore, setMyStore, showToast } = useApp();
+  const [open, setOpen] = useState(false);
+  const sel = STORES.find((s) => s.id === myStore);
+  return (
+    <div className="relative hidden lg:block">
+      <button onClick={() => setOpen(!open)} className="text-left group">
+        <p className="text-[13px] font-bold flex items-center gap-1 group-hover:text-brand">📍 Mi tienda <span className="text-[9px] text-neutral-400">▼</span></p>
+        <p className="text-[11px] text-neutral-500 max-w-[130px] truncate">{sel ? sel.name : 'Elige tu tienda'}</p>
+      </button>
+      {open && (
+        <React.Fragment>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>
+          <div className="drop-enter absolute right-0 top-full mt-3 w-80 bg-white border border-neutral-200 rounded-2xl shadow-xl z-50 p-3 space-y-2">
+            <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide px-1">Elige tu tienda preferida</p>
+            {STORES.map((s) => (
+              <button key={s.id} onClick={() => { setMyStore(s.id); setOpen(false); showToast('Tienda preferida: ' + s.name); }}
+                className={'w-full text-left rounded-xl border-2 p-3 transition-colors ' + (myStore === s.id ? 'border-brand bg-brand-light' : 'border-neutral-200 hover:border-neutral-300')}>
+                <p className="text-sm font-extrabold flex items-center gap-1.5">📍 {s.name} {myStore === s.id && <span className="text-brand text-xs">✓</span>}</p>
+                <p className="text-xs text-neutral-500 mt-0.5">{s.addr}</p>
+                <p className="text-[11px] text-neutral-400 mt-0.5">{s.hours}</p>
+              </button>
+            ))}
+          </div>
+        </React.Fragment>
+      )}
+    </div>
+  );
+}
+
+function CategoryNav() {
+  const { navigate } = useApp();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="hidden md:block bg-white border-b border-neutral-200 relative">
+      <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 overflow-x-auto no-scrollbar">
+        <div className="relative shrink-0">
+          <button onClick={() => setOpen(!open)} className="flex items-center gap-2 bg-ink hover:bg-black text-white text-[13px] font-bold rounded-lg px-3.5 py-2 my-2 mr-2 transition-colors">
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+            Todas las categorías
+          </button>
+          {open && (
+            <React.Fragment>
+              <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>
+              <div className="drop-enter absolute left-0 top-full mt-1 w-80 bg-white border border-neutral-200 rounded-2xl shadow-xl z-50 p-2">
+                {CATEGORIES.map((c) => (
+                  <button key={c.id} onClick={() => { navigate('category', { cat: c.id }); setOpen(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-brand-light text-sm font-semibold text-left">
+                    <span className="text-xl">{c.icon}</span>{c.label}
+                  </button>
+                ))}
+                <div className="border-t border-neutral-100 mt-1 pt-1">
+                  <button onClick={() => { navigate('category', { ofertas: true }); setOpen(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-brand-light text-sm font-extrabold text-brand text-left">
+                    <span className="text-xl">🔥</span>Ofertas de la semana
+                  </button>
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+        {CATEGORIES.map((c) => (
+          <button key={c.id} onClick={() => navigate('category', { cat: c.id })}
+            className="px-2 py-3.5 text-[13px] font-semibold text-neutral-600 hover:text-brand whitespace-nowrap transition-colors shrink-0">
+            {c.label}
+          </button>
+        ))}
+        <div className="flex-1 min-w-[8px]"></div>
+        <button onClick={() => navigate('category', { ofertas: true })} className="px-2 py-3.5 text-[13px] font-extrabold text-brand whitespace-nowrap shrink-0">🔥 Ofertas</button>
+      </div>
+    </div>
+  );
+}
+
+function Navbar() {
+  const { navigate, cart, wish, showToast } = useApp();
+  const [menu, setMenu] = useState(false);
+  const count = cart.reduce((a, l) => a + l.qty, 0);
+  return (
+    <header className="sticky top-0 z-40 shadow-sm">
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 md:gap-5">
+          <button className="md:hidden p-1.5 -ml-1.5 text-ink" onClick={() => setMenu(!menu)} aria-label="Menú">
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {menu ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+          <Logo onClick={() => navigate('home')} />
+          <div className="flex-1 hidden sm:block max-w-xl mx-auto"><SearchBox /></div>
+          <div className="ml-auto sm:ml-0 flex items-center gap-3 md:gap-4">
+            <MiTienda />
+            <button onClick={() => showToast('Demo: el inicio de sesión no está disponible en el prototipo')} aria-label="Mi cuenta"
+              className="hidden md:block p-1.5 text-ink hover:text-brand transition-colors">
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="3.5" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+              </svg>
+            </button>
+            <button onClick={() => navigate('wishlist')} className="relative p-1.5 text-ink hover:text-brand transition-colors" aria-label="Favoritos">
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" />
+              </svg>
+              {wish.length > 0 && <span className="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{wish.length}</span>}
+            </button>
+            <button onClick={() => navigate('cart')} className="relative p-1.5 text-ink hover:text-brand transition-colors" aria-label="Carrito">
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="20" r="1.5" /><circle cx="17" cy="20" r="1.5" /><path d="M3 4h2l2.4 12h10.2l2.4-8H6" />
+              </svg>
+              {count > 0 && <span className="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{count}</span>}
+            </button>
+          </div>
+        </div>
+        {/* mobile search */}
+        <div className="sm:hidden px-4 pb-3"><SearchBox small /></div>
+        {menu && (
+          <nav className="md:hidden border-t border-neutral-200 bg-white px-4 py-3 space-y-1">
+            {CATEGORIES.map((c) => (
+              <button key={c.id} onClick={() => { navigate('category', { cat: c.id }); setMenu(false); }}
+                className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-brand-light text-sm font-semibold flex items-center gap-2.5">
+                <span>{c.icon}</span>{c.label}
+              </button>
+            ))}
+            <button onClick={() => { navigate('category', { ofertas: true }); setMenu(false); }}
+              className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-brand-light text-sm font-extrabold text-brand flex items-center gap-2.5">
+              <span>🔥</span>Ofertas
+            </button>
+            <div className="border-t border-neutral-100 pt-2 mt-2 space-y-1">
+              <button onClick={() => { navigate('wishlist'); setMenu(false); }} className="w-full text-left px-3 py-2 text-sm font-semibold text-neutral-600">♡ Mis favoritos</button>
+              <button className="w-full text-left px-3 py-2 text-sm font-semibold text-neutral-600">👤 Mi cuenta · Mis pedidos</button>
+              <div className="px-3 pt-1"><TasaPill /></div>
+            </div>
+          </nav>
+        )}
+      </div>
+      <CategoryNav />
+      <div className="bg-ink text-white text-[12px] md:text-[13px]">
+        <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-center gap-4 md:gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
+          <span>📦 Envío gratis en Caracas</span>
+          <span className="text-white/30">|</span>
+          <span>🏪 Retira hoy en Las Mercedes o Chacao</span>
+          <span className="text-white/30">|</span>
+          <span>💳 Paga en cuotas con Cashea</span>
+          <span className="text-white/30 hidden lg:inline">|</span>
+          <span className="hidden lg:inline"><TasaPill dark /></span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ============================== FOOTER + FAB ============================== */
+function Footer() {
+  const { navigate } = useApp();
+  return (
+    <footer className="bg-ink text-neutral-300 mt-16">
+      <div className="max-w-7xl mx-auto px-4 py-12 grid gap-10 md:grid-cols-4">
+        <div>
+          <div className="flex flex-col items-start leading-none">
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#E8651A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10.5V20h13v-9.5" /></svg>
+            <span className="font-extrabold tracking-tight text-white text-2xl">alkosto</span>
+            <span className="text-[11px] italic font-semibold text-brand">Más que Hogar</span>
+          </div>
+          <p className="text-sm mt-4 text-neutral-400">Electrodomésticos premium para el hogar venezolano, con las mejores marcas y financiamiento flexible.</p>
+        </div>
+        <div>
+          <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3">Nuestras tiendas</h4>
+          {STORES.map((s) => (
+            <div key={s.id} className="mb-4 text-sm">
+              <p className="font-semibold text-white">📍 {s.name}</p>
+              <p className="text-neutral-400">{s.addr}</p>
+              <p className="text-neutral-500 text-xs mt-0.5">{s.hours}</p>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3">Atención</h4>
+          <a href={WHATSAPP} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-sm rounded-full px-4 py-2.5 transition-colors">
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
+            Escríbenos por WhatsApp
+          </a>
+          <div className="flex gap-3 mt-5">
+            {['Instagram', 'TikTok', 'Facebook'].map((s) => (
+              <a key={s} href="#" className="text-xs font-semibold border border-neutral-600 rounded-full px-3 py-1.5 hover:border-brand hover:text-brand transition-colors">{s}</a>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3">Departamentos</h4>
+          <ul className="space-y-1.5 text-sm">
+            {CATEGORIES.map((c) => (
+              <li key={c.id}><button onClick={() => navigate('category', { cat: c.id })} className="hover:text-brand transition-colors">{c.label}</button></li>
+            ))}
+            <li><button onClick={() => navigate('category', { ofertas: true })} className="font-bold text-brand">🔥 Ofertas</button></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-neutral-700">
+        <div className="max-w-7xl mx-auto px-4 py-5 text-xs text-neutral-500 flex flex-col md:flex-row gap-2 md:items-center md:justify-between">
+          <p>© 2026 Alkosto C.A. · RIF J-404684034 · Caracas, Venezuela</p>
+          <p className="md:text-right">Precios en USD. Equivalencia en Bs. calculada a tasa BCV del día. Consulta la tasa vigente en bcv.org.ve</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function WhatsAppFab() {
+  return (
+    <a href={WHATSAPP} target="_blank" rel="noopener" aria-label="WhatsApp"
+      className="fixed bottom-5 right-5 z-40 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl shadow-green-500/30 flex items-center justify-center hover:scale-105 transition-all">
+      <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
+    </a>
+  );
+}
+
+/* ============================== HOME ============================== */
+function Home() {
+  const { navigate } = useApp();
+  const featured = FEATURED.map((id) => PRODUCTS.find((p) => p.id === id));
+  return (
+    <main className="page-enter">
+      {/* HERO */}
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(115deg, #1a1410 0%, #2C2C2C 45%, #4a2c14 80%, #E8651A 140%)' }}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 80% 30%, #E8651A 0%, transparent 45%), radial-gradient(circle at 95% 80%, #f59e0b 0%, transparent 35%)' }}></div>
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 lg:py-28">
+          <p className="text-brand font-bold italic mb-3 text-sm md:text-base">Más que Hogar</p>
+          <h1 className="text-white font-extrabold text-3xl md:text-5xl lg:text-6xl leading-tight max-w-2xl">El hogar que mereces, al precio que buscas</h1>
+          <p className="text-neutral-300 mt-4 max-w-lg text-sm md:text-base">Las mejores marcas de electrodomésticos, disponibles hoy en Las Mercedes y Chacao. Envío gratis en Caracas.</p>
+          <button onClick={() => navigate('category', { ofertas: true })}
+            className="mt-8 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5 text-base shadow-lg shadow-brand/30 transition-colors">
+            Ver ofertas
+          </button>
+        </div>
+      </section>
+
+      {/* CATEGORIES */}
+      <section className="max-w-7xl mx-auto px-4 mt-12">
+        <h2 className="text-xl md:text-2xl font-extrabold mb-5">Compra por <span className="text-brand">departamento</span></h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+          {CATEGORIES.map((c) => (
+            <button key={c.id} onClick={() => navigate('category', { cat: c.id })}
+              className="bg-white rounded-2xl border border-neutral-200 hover:border-brand/50 hover:shadow-md transition-all p-5 md:p-6 flex flex-col items-center gap-3 group">
+              <span className="text-4xl md:text-5xl group-hover:scale-110 transition-transform">{c.icon}</span>
+              <span className="text-sm font-bold text-center leading-snug">{c.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURED */}
+      <section className="max-w-7xl mx-auto px-4 mt-14">
+        <div className="flex items-end justify-between mb-5">
+          <h2 className="text-xl md:text-2xl font-extrabold">Más vendidos <span className="text-brand">esta semana</span></h2>
+          <button onClick={() => navigate('category', { ofertas: true })} className="text-sm font-bold text-brand hover:text-brand-dark whitespace-nowrap">Ver todo →</button>
+        </div>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x">
+          {featured.map((p) => (
+            <div key={p.id} className="w-56 md:w-64 shrink-0 snap-start"><ProductCard p={p} /></div>
+          ))}
+        </div>
+      </section>
+
+      {/* BRANDS */}
+      <section className="max-w-7xl mx-auto px-4 mt-14">
+        <div className="bg-white rounded-2xl border border-neutral-200 px-6 py-7">
+          <p className="text-center text-xs uppercase tracking-widest text-neutral-400 font-bold mb-5">Marcas oficiales</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {BRANDS.map((b) => (
+              <span key={b} className="text-lg md:text-xl font-extrabold text-neutral-300 hover:text-ink transition-colors cursor-default tracking-tight">{b}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+/* ============================== CATEGORY ============================== */
+function CategoryPage({ cat = 'cocinas', query, ofertas }) {
+  const { navigate } = useApp();
+  const catInfo = CATEGORIES.find((c) => c.id === cat) || CATEGORIES[3];
+  const [fBrands, setFBrands] = useState([]);
+  const [maxPrice, setMaxPrice] = useState(3000);
+  const [fTipos, setFTipos] = useState([]);
+  const [fVolts, setFVolts] = useState([]);
+  const [fLocs, setFLocs] = useState([]);
+  const [sort, setSort] = useState('relevancia');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+
+  const base = ofertas
+    ? PRODUCTS.filter((p) => p.oldPrice)
+    : query
+      ? PRODUCTS.filter((p) => (p.name + ' ' + p.brand + ' ' + p.model).toLowerCase().includes(query.toLowerCase()))
+      : PRODUCTS.filter((p) => p.cat === cat);
+
+  const brandOpts = [...new Set(base.map((p) => p.brand))];
+  const showTipo = !query && !ofertas && cat === 'cocinas';
+  const title = ofertas ? '🔥 Ofertas de la semana' : query ? `Resultados para “${query}”` : catInfo.label;
+
+  let items = base.filter((p) =>
+    (fBrands.length === 0 || fBrands.includes(p.brand)) &&
+    p.price <= maxPrice &&
+    (fTipos.length === 0 || fTipos.includes(p.tipo)) &&
+    (fVolts.length === 0 || fVolts.includes(p.volt)) &&
+    (fLocs.length === 0 || fLocs.some((l) => p.locs.includes(l)))
+  );
+  if (sort === 'menor') items = [...items].sort((a, b) => a.price - b.price);
+  if (sort === 'mayor') items = [...items].sort((a, b) => b.price - a.price);
+  if (sort === 'vendidos') items = [...items].sort((a, b) => b.sales - a.sales);
+
+  const FilterGroup = ({ title, children }) => (
+    <div className="border-b border-neutral-200 pb-4 mb-4 last:border-0">
+      <h4 className="text-xs uppercase tracking-wider font-bold text-neutral-500 mb-2.5">{title}</h4>
+      {children}
+    </div>
+  );
+  const Check = ({ label, checked, onChange }) => (
+    <label className="flex items-center gap-2.5 py-1 text-sm cursor-pointer hover:text-brand">
+      <input type="checkbox" checked={checked} onChange={onChange} className="w-4 h-4 rounded border-neutral-300 accent-[#E8651A]" />
+      {label}
+    </label>
+  );
+
+  const sidebar = (
+    <div className="bg-white rounded-2xl border border-neutral-200 p-5">
+      <FilterGroup title="Marca">
+        {brandOpts.map((b) => (
+          <Check key={b} label={b} checked={fBrands.includes(b)} onChange={() => toggle(fBrands, setFBrands, b)} />
+        ))}
+      </FilterGroup>
+      <FilterGroup title="Precio">
+        <input type="range" min="0" max="3000" step="50" value={maxPrice} onChange={(e) => setMaxPrice(+e.target.value)} className="w-full" />
+        <div className="flex justify-between text-xs text-neutral-500 mt-1">
+          <span>$0</span><span className="font-bold text-brand">Hasta {usd(maxPrice)}</span><span>$3,000</span>
+        </div>
+      </FilterGroup>
+      {showTipo && (
+        <FilterGroup title="Tipo">
+          {['Tope de cocina', 'Horno empotrable', 'Cocina completa'].map((t) => (
+            <Check key={t} label={t} checked={fTipos.includes(t)} onChange={() => toggle(fTipos, setFTipos, t)} />
+          ))}
+        </FilterGroup>
+      )}
+      <FilterGroup title="Voltaje">
+        {['110V', '220V'].map((v) => (
+          <Check key={v} label={v} checked={fVolts.includes(v)} onChange={() => toggle(fVolts, setFVolts, v)} />
+        ))}
+      </FilterGroup>
+      <FilterGroup title="Disponibilidad">
+        <Check label="Disponible en Las Mercedes" checked={fLocs.includes('mercedes')} onChange={() => toggle(fLocs, setFLocs, 'mercedes')} />
+        <Check label="Disponible en Chacao" checked={fLocs.includes('chacao')} onChange={() => toggle(fLocs, setFLocs, 'chacao')} />
+      </FilterGroup>
+    </div>
+  );
+
+  return (
+    <main className="page-enter max-w-7xl mx-auto px-4 mt-6">
+      <nav className="text-sm text-neutral-500 mb-4">
+        <button onClick={() => navigate('home')} className="hover:text-brand">Inicio</button>
+        <span className="mx-2">›</span>
+        <span className="font-semibold text-ink">{ofertas ? 'Ofertas' : query ? 'Búsqueda' : catInfo.label}</span>
+      </nav>
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <h1 className="text-2xl md:text-3xl font-extrabold">{title}</h1>
+        <div className="flex items-center gap-2.5">
+          <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden text-sm font-bold border border-neutral-300 rounded-full px-4 py-2 bg-white">⚙ Filtros</button>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="text-sm font-semibold border border-neutral-300 rounded-full px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/40">
+            <option value="relevancia">Relevancia</option>
+            <option value="menor">Menor precio</option>
+            <option value="mayor">Mayor precio</option>
+            <option value="vendidos">Más vendidos</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex gap-6 items-start">
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-44">{sidebar}</aside>
+        {showFilters && <div className="lg:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setShowFilters(false)}>
+          <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-neutral-100 p-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-extrabold text-lg">Filtros</h3>
+              <button onClick={() => setShowFilters(false)} className="text-2xl leading-none px-2">×</button>
+            </div>
+            {sidebar}
+          </div>
+        </div>}
+        <div className="flex-1">
+          <p className="text-sm text-neutral-500 mb-3">{items.length} producto{items.length !== 1 ? 's' : ''}</p>
+          {items.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="font-bold">No encontramos productos con esos filtros</p>
+              <p className="text-sm text-neutral-500 mt-1">Prueba ajustando los filtros o consúltanos por WhatsApp.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {items.map((p) => <ProductCard key={p.id} p={p} />)}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* ============================== WISHLIST ============================== */
+function WishlistPage() {
+  const { navigate, wish } = useApp();
+  const items = PRODUCTS.filter((p) => wish.includes(p.id));
+  return (
+    <main className="page-enter max-w-7xl mx-auto px-4 mt-6">
+      <nav className="text-sm text-neutral-500 mb-4">
+        <button onClick={() => navigate('home')} className="hover:text-brand">Inicio</button>
+        <span className="mx-2">›</span>
+        <span className="font-semibold text-ink">Mis favoritos</span>
+      </nav>
+      <h1 className="text-2xl md:text-3xl font-extrabold mb-6">Mis favoritos <span className="text-neutral-400 font-semibold text-lg">({items.length})</span></h1>
+      {items.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-neutral-200 p-14 text-center max-w-2xl mx-auto">
+          <p className="text-6xl mb-4">🤍</p>
+          <h2 className="text-xl font-extrabold">Aún no tienes favoritos</h2>
+          <p className="text-neutral-500 mt-2 text-sm">Toca el corazón en cualquier producto para guardarlo aquí.</p>
+          <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5 transition-colors">Ver ofertas</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {items.map((p) => <ProductCard key={p.id} p={p} />)}
+        </div>
+      )}
+    </main>
+  );
+}
+
+/* ============================== PRODUCT DETAIL ============================== */
+function Accordion({ title, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border border-neutral-200 rounded-xl overflow-hidden bg-white">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold hover:bg-neutral-50">
+        {title}
+        <span className={'transition-transform text-brand ' + (open ? 'rotate-180' : '')}>▾</span>
+      </button>
+      {open && <div className="px-4 pb-4 text-sm text-neutral-600">{children}</div>}
+    </div>
+  );
+}
+
+function DimsDiagram({ dims }) {
+  return (
+    <svg viewBox="0 0 300 215" className="w-full max-w-xs mx-auto my-3">
+      <polygon points="40,60 90,25 250,25 200,60" fill="#f5f5f5" stroke="#a3a3a3" strokeWidth="1.5" />
+      <polygon points="200,60 250,25 250,140 200,175" fill="#e5e5e5" stroke="#a3a3a3" strokeWidth="1.5" />
+      <rect x="40" y="60" width="160" height="115" fill="#fafafa" stroke="#737373" strokeWidth="1.5" />
+      {/* ancho */}
+      <line x1="40" y1="190" x2="200" y2="190" stroke="#E8651A" strokeWidth="1.5" />
+      <line x1="40" y1="185" x2="40" y2="195" stroke="#E8651A" strokeWidth="1.5" />
+      <line x1="200" y1="185" x2="200" y2="195" stroke="#E8651A" strokeWidth="1.5" />
+      <text x="120" y="207" textAnchor="middle" fontSize="12" fontWeight="700" fill="#2C2C2C">Ancho {dims.ancho} cm</text>
+      {/* alto */}
+      <line x1="24" y1="60" x2="24" y2="175" stroke="#E8651A" strokeWidth="1.5" />
+      <line x1="19" y1="60" x2="29" y2="60" stroke="#E8651A" strokeWidth="1.5" />
+      <line x1="19" y1="175" x2="29" y2="175" stroke="#E8651A" strokeWidth="1.5" />
+      <text transform="rotate(-90 12 118)" x="12" y="118" textAnchor="middle" fontSize="12" fontWeight="700" fill="#2C2C2C">Alto {dims.alto} cm</text>
+      {/* fondo */}
+      <line x1="207" y1="180" x2="257" y2="145" stroke="#E8651A" strokeWidth="1.5" />
+      <text x="262" y="170" textAnchor="middle" fontSize="12" fontWeight="700" fill="#2C2C2C">Fondo</text>
+      <text x="262" y="184" textAnchor="middle" fontSize="12" fontWeight="700" fill="#2C2C2C">{dims.fondo} cm</text>
+    </svg>
+  );
+}
+
+function ProductDetail({ id }) {
+  const { navigate, addToCart, myStore, showToast } = useApp();
+  const p = PRODUCTS.find((x) => x.id === id) || PRODUCTS[0];
+  const [delivery, setDelivery] = useState('retiro');
+  const [store, setStore] = useState(myStore && p.locs.includes(myStore) ? myStore : p.locs[0]);
+  const [tab, setTab] = useState('desc');
+  const inicial = Math.round(p.price / 6);
+  const cuota = Math.round((p.price - inicial) / 6);
+  const related = PRODUCTS.filter((x) => x.id !== p.id && (x.cat === p.cat || x.brand === p.brand)).slice(0, 4);
+  const catInfo = CATEGORIES.find((c) => c.id === p.cat);
+
+  const tabs = [
+    { id: 'desc', label: 'Descripción' },
+    { id: 'ficha', label: 'Ficha técnica' },
+    { id: 'garantia', label: 'Garantía' },
+    { id: 'faq', label: 'Preguntas frecuentes' },
+  ];
+
+  const ficha = [
+    ['Marca', p.brand],
+    ['Modelo', p.model],
+    ['Departamento', catInfo ? catInfo.label : '—'],
+    ['Voltaje', p.volt],
+    ...(p.dims ? [['Ancho', p.dims.ancho + ' cm'], ['Alto', p.dims.alto + ' cm'], ['Profundidad', p.dims.fondo + ' cm']] : []),
+    ['Garantía', '1 año oficial ' + p.brand],
+    ['Disponibilidad', p.locs.map((l) => STORES.find((s) => s.id === l).name).join(' · ')],
+  ];
+
+  const docs = [
+    ['Manual de usuario', 'PDF · 4.2 MB'],
+    ['Guía de instalación', 'PDF · 1.8 MB'],
+    ['Ficha técnica del fabricante', 'PDF · 950 KB'],
+  ];
+  const DocRow = ([name, meta]) => (
+    <button key={name} onClick={() => showToast('Descarga simulada — prototipo')}
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-neutral-200 hover:border-brand/50 hover:bg-brand-light/40 transition-colors text-left">
+      <span className="text-xl">📄</span>
+      <span className="flex-1">
+        <span className="block text-sm font-semibold text-ink">{name}</span>
+        <span className="block text-[11px] text-neutral-400">{meta}</span>
+      </span>
+      <svg viewBox="0 0 24 24" className="w-4 h-4 text-brand" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4v12m0 0 5-5m-5 5-5-5" /><path d="M5 20h14" /></svg>
+    </button>
+  );
+
+  return (
+    <main className="page-enter max-w-7xl mx-auto px-4 mt-6">
+      <nav className="text-sm text-neutral-500 mb-5">
+        <button onClick={() => navigate('home')} className="hover:text-brand">Inicio</button>
+        <span className="mx-2">›</span>
+        <button onClick={() => navigate('category', { cat: p.cat })} className="hover:text-brand">{catInfo ? catInfo.label : 'Catálogo'}</button>
+        <span className="mx-2">›</span>
+        <span className="font-semibold text-ink">{p.model}</span>
+      </nav>
+
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+        {/* LEFT — gallery */}
+        <div>
+          <div className="relative rounded-3xl overflow-hidden border border-neutral-200">
+            <ProductImage p={p} className="aspect-square w-full" />
+            {p.oldPrice && <span className="absolute top-3 left-3 bg-red-600 text-white text-sm font-extrabold rounded-lg px-2.5 py-1">-{Math.round((1 - p.price / p.oldPrice) * 100)}%</span>}
+            <div className="absolute top-3 right-3"><HeartButton id={p.id} /></div>
+          </div>
+          <div className="grid grid-cols-4 gap-3 mt-3">
+            {['Frente', 'Lateral', 'Detalle', 'Instalada'].map((angle, i) => (
+              <div key={angle} className={'rounded-xl overflow-hidden border cursor-pointer transition-colors ' + (i === 0 ? 'border-brand ring-2 ring-brand/30' : 'border-neutral-200 hover:border-brand/50')}>
+                <ProductImage p={p} className="aspect-square w-full opacity-90" />
+                <p className="text-[10px] text-center text-neutral-400 py-1 bg-white">{angle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT — info */}
+        <div>
+          <button onClick={() => navigate('category', { cat: p.cat })} className="text-sm font-semibold text-neutral-400 hover:text-brand uppercase tracking-wide">{p.brand}</button>
+          <h1 className="text-2xl md:text-3xl font-extrabold leading-tight mt-1">{p.name}</h1>
+          <div className="flex items-center gap-4 mt-1.5 flex-wrap">
+            <p className="text-sm text-neutral-400">Modelo: {p.model}</p>
+            <Stars rating={p.rating} reviews={p.reviews} size="lg" />
+          </div>
+
+          <div className="mt-4 flex items-start justify-between gap-3 flex-wrap">
+            <Price value={p.price} old={p.oldPrice} size="lg" />
+            <TasaPill />
+          </div>
+
+          {/* Cashea */}
+          <div className="mt-5 border-2 border-brand/40 bg-brand-light rounded-2xl p-4">
+            <p className="font-bold text-sm flex items-center gap-2">
+              <span className="bg-yellow-400 text-black text-[11px] font-extrabold rounded px-1.5 py-0.5">Cashea</span>
+              Págalo en cuotas con Cashea
+            </p>
+            <p className="text-sm text-neutral-700 mt-1">Desde <strong>${inicial.toLocaleString('en-US')}</strong> inicial + 6 cuotas de <strong>${cuota.toLocaleString('en-US')}/mes</strong></p>
+            <button className="text-brand font-bold text-sm mt-2 hover:text-brand-dark">Ver opciones de financiamiento →</button>
+          </div>
+
+          {/* Availability */}
+          <div className="mt-5 space-y-1.5 text-sm">
+            {STORES.map((s) => (
+              <p key={s.id} className={p.locs.includes(s.id) ? 'text-green-700' : 'text-neutral-400'}>
+                {p.locs.includes(s.id) ? '✅' : '✖️'} {p.locs.includes(s.id) ? `Disponible en ${s.name} (retiro hoy)` : `Agotado en ${s.name}`}
+              </p>
+            ))}
+            <p className="text-neutral-600">🚚 Envío a Caracas: <strong className="text-green-700">gratis</strong> · Envío nacional: consultar</p>
+          </div>
+
+          {/* Delivery options */}
+          <div className="mt-5 bg-white border border-neutral-200 rounded-2xl divide-y divide-neutral-100">
+            {[
+              { id: 'retiro', label: 'Retiro en tienda', extra: 'Gratis · listo en ~2 horas' },
+              { id: 'caracas', label: 'Envío a domicilio en Caracas', extra: 'Gratis · 24-48 horas' },
+              { id: 'nacional', label: 'Envío nacional', extra: 'Calcular costo al pagar' },
+            ].map((opt) => (
+              <label key={opt.id} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-50">
+                <input type="radio" name="delivery" checked={delivery === opt.id} onChange={() => setDelivery(opt.id)} className="w-4 h-4 accent-[#E8651A]" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">{opt.label}</p>
+                  <p className="text-xs text-neutral-500">{opt.extra}</p>
+                </div>
+                {opt.id === 'retiro' && delivery === 'retiro' && (
+                  <select value={store} onChange={(e) => setStore(e.target.value)} onClick={(e) => e.stopPropagation()}
+                    className="text-xs font-semibold border border-neutral-300 rounded-lg px-2 py-1.5 bg-white">
+                    {STORES.filter((s) => p.locs.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                )}
+              </label>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <button onClick={() => addToCart(p.id)} className="mt-5 w-full bg-brand hover:bg-brand-dark text-white font-bold text-base rounded-2xl py-4 shadow-lg shadow-brand/25 transition-colors">
+            Agregar al carrito
+          </button>
+          <a href={WHATSAPP} target="_blank" rel="noopener" className="mt-3 w-full border-2 border-green-500 text-green-600 hover:bg-green-50 font-bold text-sm rounded-2xl py-3.5 flex items-center justify-center gap-2 transition-colors">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
+            Consultar por WhatsApp
+          </a>
+
+          {/* Specs accordions */}
+          <div className="mt-6 space-y-3">
+            <Accordion title="Características">
+              <ul className="space-y-1.5 list-disc pl-4">{p.specs.map((s) => <li key={s}>{s}</li>)}</ul>
+            </Accordion>
+            <Accordion title="Medidas">
+              {p.dims && <DimsDiagram dims={p.dims} />}
+              <ul className="space-y-1.5 list-disc pl-4">{p.medidas.map((s) => <li key={s}>{s}</li>)}</ul>
+            </Accordion>
+            <Accordion title="Manual y documentos">
+              <div className="space-y-2 pt-1">{docs.map(DocRow)}</div>
+            </Accordion>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <section className="mt-12 bg-white border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="flex border-b border-neutral-200 overflow-x-auto no-scrollbar">
+          {tabs.map((t) => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={'px-5 py-3.5 text-sm font-bold whitespace-nowrap border-b-2 -mb-px transition-colors ' + (tab === t.id ? 'border-brand text-brand' : 'border-transparent text-neutral-500 hover:text-ink')}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="p-5 md:p-7 text-sm text-neutral-600 leading-relaxed">
+          {tab === 'desc' && <p>{p.desc}</p>}
+          {tab === 'ficha' && (
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-bold text-ink mb-3">Especificaciones generales</h4>
+                <table className="w-full text-sm border border-neutral-200 rounded-xl overflow-hidden">
+                  <tbody>
+                    {ficha.map(([k, v], i) => (
+                      <tr key={k} className={i % 2 === 0 ? 'bg-neutral-50' : 'bg-white'}>
+                        <td className="px-3.5 py-2.5 font-semibold text-ink w-2/5 align-top">{k}</td>
+                        <td className="px-3.5 py-2.5">{v}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <h4 className="font-bold text-ink mb-3">Características</h4>
+                <ul className="space-y-1.5 list-disc pl-4 mb-6">{p.specs.map((s) => <li key={s}>{s}</li>)}</ul>
+                <h4 className="font-bold text-ink mb-3">Documentos</h4>
+                <div className="space-y-2">{docs.map(DocRow)}</div>
+              </div>
+            </div>
+          )}
+          {tab === 'garantia' && <p>Este producto cuenta con <strong>1 año de garantía oficial {p.brand}</strong> en Venezuela, gestionada directamente por Alkosto. Incluye servicio técnico autorizado y repuestos originales. Conserva tu factura para hacerla válida en cualquiera de nuestras tiendas.</p>}
+          {tab === 'faq' && (
+            <div className="space-y-4">
+              <div><p className="font-bold text-ink">¿Puedo pagar con Cashea?</p><p>Sí, paga una inicial desde 20% y divide el resto en cuotas sin interés desde la app de Cashea.</p></div>
+              <div><p className="font-bold text-ink">¿Hacen instalación?</p><p>Ofrecemos instalación certificada en Caracas con costo adicional. Consúltanos por WhatsApp.</p></div>
+              <div><p className="font-bold text-ink">¿Cuánto tarda el retiro en tienda?</p><p>Tu pedido estará listo en aproximadamente 2 horas en la sucursal que elijas.</p></div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Related */}
+      <section className="mt-12">
+        <h2 className="text-xl md:text-2xl font-extrabold mb-5">Productos <span className="text-brand">relacionados</span></h2>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x">
+          {related.map((r) => <div key={r.id} className="w-56 md:w-64 shrink-0 snap-start"><ProductCard p={r} /></div>)}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+/* ============================== CART ============================== */
+function CartPage() {
+  const { navigate, cart, setQty, removeFromCart } = useApp();
+  const lines = cart.map((l) => ({ ...l, p: PRODUCTS.find((p) => p.id === l.id) }));
+  const subtotal = lines.reduce((a, l) => a + l.p.price * l.qty, 0);
+
+  if (lines.length === 0) {
+    return (
+      <main className="page-enter max-w-3xl mx-auto px-4 mt-16 text-center">
+        <p className="text-6xl mb-4">🛒</p>
+        <h1 className="text-2xl font-extrabold">Tu carrito está vacío</h1>
+        <p className="text-neutral-500 mt-2">Descubre las mejores marcas para tu hogar.</p>
+        <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5 transition-colors">
+          Explorar ofertas
+        </button>
+      </main>
+    );
+  }
+
+  return (
+    <main className="page-enter max-w-7xl mx-auto px-4 mt-6">
+      <h1 className="text-2xl md:text-3xl font-extrabold mb-6">Tu carrito <span className="text-neutral-400 font-semibold text-lg">({lines.reduce((a, l) => a + l.qty, 0)} artículos)</span></h1>
+      <div className="grid lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2 space-y-3">
+          {lines.map((l) => (
+            <div key={l.id} className="bg-white border border-neutral-200 rounded-2xl p-4 flex gap-4 items-center">
+              <button onClick={() => navigate('product', { id: l.id })} className="shrink-0">
+                <ProductImage p={l.p} className="w-20 h-20 md:w-24 md:h-24 rounded-xl text-3xl" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">{l.p.brand}</p>
+                <button onClick={() => navigate('product', { id: l.id })} className="font-bold text-sm leading-snug text-left hover:text-brand line-clamp-2">{l.p.name}</button>
+                <p className="text-xs text-neutral-400">{l.p.model}</p>
+                <div className="flex items-center gap-4 mt-2 flex-wrap">
+                  <div className="flex items-center border border-neutral-300 rounded-full">
+                    <button onClick={() => setQty(l.id, l.qty - 1)} className="w-8 h-8 font-bold text-neutral-500 hover:text-brand" aria-label="Disminuir">−</button>
+                    <span className="w-7 text-center text-sm font-bold">{l.qty}</span>
+                    <button onClick={() => setQty(l.id, l.qty + 1)} className="w-8 h-8 font-bold text-neutral-500 hover:text-brand" aria-label="Aumentar">+</button>
+                  </div>
+                  <button onClick={() => removeFromCart(l.id)} className="text-xs font-semibold text-neutral-400 hover:text-red-500 underline">Eliminar</button>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-extrabold text-brand">{usd(l.p.price * l.qty)}</p>
+                <p className="text-[11px] text-neutral-400">{bsEq(l.p.price * l.qty)}</p>
+                {l.qty > 1 && <p className="text-[11px] text-neutral-400 mt-0.5">{usd(l.p.price)} c/u</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <aside className="bg-white border border-neutral-200 rounded-2xl p-5 lg:sticky lg:top-44">
+          <h2 className="font-extrabold text-lg mb-4">Resumen del pedido</h2>
+          <div className="space-y-2.5 text-sm">
+            <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="font-semibold">{usd(subtotal)}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Envío</span><span className="font-semibold text-green-600">Gratis (Caracas)</span></div>
+            <p className="text-[11px] text-neutral-400">Envío nacional: a calcular en el checkout</p>
+          </div>
+          <div className="border-t border-neutral-200 mt-4 pt-4">
+            <div className="flex justify-between items-baseline">
+              <span className="font-bold">Total</span>
+              <span className="text-2xl font-extrabold text-brand">{usd(subtotal)}</span>
+            </div>
+            <p className="text-right text-xs text-neutral-400">{bsEq(subtotal)}</p>
+          </div>
+          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2.5 text-xs">
+            <span className="bg-yellow-400 text-black font-extrabold rounded px-1.5 py-0.5 mr-1.5">Cashea</span>
+            Divide en 6 cuotas desde <strong>${cuotaMes(subtotal)}/mes</strong>
+          </div>
+          <button onClick={() => navigate('checkout')} className="mt-5 w-full bg-brand hover:bg-brand-dark text-white font-bold rounded-2xl py-4 shadow-lg shadow-brand/25 transition-colors">
+            Proceder al pago
+          </button>
+          <button onClick={() => navigate('category', { ofertas: true })} className="mt-3 w-full text-sm font-semibold text-neutral-500 hover:text-brand">
+            ← Seguir comprando
+          </button>
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+/* ============================== CHECKOUT ============================== */
+function Stepper({ step }) {
+  const steps = ['Entrega', 'Pago', 'Confirmación'];
+  return (
+    <div className="flex items-center justify-center gap-2 md:gap-4 mb-8">
+      {steps.map((s, i) => {
+        const n = i + 1;
+        const state = n < step ? 'done' : n === step ? 'active' : 'todo';
+        return (
+          <React.Fragment key={s}>
+            {i > 0 && <div className={'h-0.5 w-8 md:w-16 rounded ' + (n <= step ? 'bg-brand' : 'bg-neutral-300')}></div>}
+            <div className="flex items-center gap-2">
+              <span className={'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ' +
+                (state === 'done' ? 'bg-brand text-white' : state === 'active' ? 'bg-brand text-white ring-4 ring-brand/20' : 'bg-neutral-200 text-neutral-500')}>
+                {state === 'done' ? '✓' : n}
+              </span>
+              <span className={'text-xs md:text-sm font-bold hidden sm:inline ' + (state === 'todo' ? 'text-neutral-400' : 'text-ink')}>{s}</span>
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+const PAY_METHODS = [
+  { id: 'tarjeta', icon: '💳', title: 'Tarjeta internacional', sub: 'Visa / Mastercard / Amex' },
+  { id: 'pagomovil', icon: '📱', title: 'Pago Móvil', sub: 'Transferencia bancaria inmediata' },
+  { id: 'zelle', icon: '💵', title: 'Zelle', sub: 'Transferencia en dólares desde EE.UU.' },
+  { id: 'transferencia', icon: '🏦', title: 'Transferencia bancaria', sub: 'Banesco / Mercantil / Venezuela' },
+  { id: 'cashea', icon: '📲', title: 'Cashea', sub: 'Compra ahora, paga después' },
+  { id: 'efectivo', icon: '💶', title: 'Efectivo en tienda', sub: 'Paga al retirar en la sucursal' },
+];
+
+const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand';
+
+function Checkout() {
+  const { navigate, cart, clearCart, myStore } = useApp();
+  const [step, setStep] = useState(1);
+  const [mode, setMode] = useState('retiro');
+  const [store, setStore] = useState(myStore || 'mercedes');
+  const [form, setForm] = useState({ nombre: '', telefono: '', direccion: '', ciudad: 'Caracas', estado: 'Distrito Capital' });
+  const [pay, setPay] = useState(null);
+  const [casheaFaq, setCasheaFaq] = useState(false);
+  const [order, setOrder] = useState(null);
+
+  const lines = cart.map((l) => ({ ...l, p: PRODUCTS.find((p) => p.id === l.id) }));
+  const subtotal = lines.reduce((a, l) => a + l.p.price * l.qty, 0);
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const canStep1 = form.nombre.trim() && form.telefono.trim() && (mode === 'retiro' || form.direccion.trim());
+
+  const confirm = () => {
+    setOrder({ lines, subtotal, mode, store, pay, nombre: form.nombre });
+    clearCart();
+    setStep(3);
+    window.scrollTo({ top: 0 });
+  };
+
+  if (lines.length === 0 && !order) {
+    return (
+      <main className="page-enter max-w-3xl mx-auto px-4 mt-16 text-center">
+        <p className="text-6xl mb-4">🛒</p>
+        <h1 className="text-2xl font-extrabold">No tienes productos en el carrito</h1>
+        <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5">Explorar ofertas</button>
+      </main>
+    );
+  }
+
+  const summary = (data) => (
+    <aside className="bg-white border border-neutral-200 rounded-2xl p-5 lg:sticky lg:top-44">
+      <h2 className="font-extrabold text-base mb-3">Tu pedido</h2>
+      <div className="space-y-2.5">
+        {(data || lines).map((l) => (
+          <div key={l.id} className="flex items-center gap-3 text-sm">
+            <ProductImage p={l.p} className="w-11 h-11 rounded-lg text-lg shrink-0" />
+            <span className="flex-1 leading-snug line-clamp-2 text-[13px]">{l.p.name}</span>
+            <span className="text-neutral-400 text-xs">×{l.qty}</span>
+            <span className="font-bold text-[13px]">{usd(l.p.price * l.qty)}</span>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-neutral-200 mt-4 pt-3 space-y-1.5 text-sm">
+        <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="font-semibold">{usd(data ? order.subtotal : subtotal)}</span></div>
+        <div className="flex justify-between"><span className="text-neutral-500">Envío</span><span className="font-semibold text-green-600">{(data ? order.mode : mode) === 'retiro' ? 'Gratis (retiro)' : 'Gratis (Caracas)'}</span></div>
+      </div>
+      <div className="border-t border-neutral-200 mt-3 pt-3">
+        <div className="flex justify-between items-baseline">
+          <span className="font-bold">Total</span>
+          <span className="text-2xl font-extrabold text-brand">{usd(data ? order.subtotal : subtotal)}</span>
+        </div>
+        <p className="text-right text-xs text-neutral-400">{bsEq(data ? order.subtotal : subtotal)}</p>
+      </div>
+      <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-[11px]">
+        <span className="bg-yellow-400 text-black font-extrabold rounded px-1 py-0.5 mr-1">Cashea</span>
+        Divide en 6 cuotas desde <strong>${cuotaMes(data ? order.subtotal : subtotal)}/mes</strong>
+      </div>
+    </aside>
+  );
+
+  /* STEP 3 — Confirmation */
+  if (step === 3 && order) {
+    const storeInfo = STORES.find((s) => s.id === order.store);
+    return (
+      <main className="page-enter max-w-3xl mx-auto px-4 mt-8">
+        <Stepper step={3} />
+        <div className="bg-white border border-neutral-200 rounded-3xl p-8 md:p-12 text-center">
+          <div className="w-20 h-20 mx-auto rounded-full bg-brand-light flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" stroke="#E8651A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m4 12.5 5 5L20 6.5" /></svg>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold mt-5">¡Pedido recibido, {order.nombre.split(' ')[0]}!</h1>
+          <p className="text-neutral-500 mt-2 text-sm">Número de orden: <strong className="text-ink">#ALK-2024-00847</strong></p>
+
+          <div className="mt-7 text-left bg-neutral-50 rounded-2xl p-5 space-y-3">
+            {order.lines.map((l) => (
+              <div key={l.id} className="flex items-center gap-3 text-sm">
+                <ProductImage p={l.p} className="w-11 h-11 rounded-lg text-lg shrink-0" />
+                <span className="flex-1 leading-snug">{l.p.name} <span className="text-neutral-400">×{l.qty}</span></span>
+                <span className="font-bold">{usd(l.p.price * l.qty)}</span>
+              </div>
+            ))}
+            <div className="border-t border-neutral-200 pt-3 flex justify-between items-baseline">
+              <span className="font-bold text-sm">Total pagado</span>
+              <span><span className="font-extrabold text-brand text-xl">{usd(order.subtotal)}</span> <span className="text-xs text-neutral-400">| {bsEq(order.subtotal)}</span></span>
+            </div>
+          </div>
+
+          <div className="mt-6 bg-brand-light border border-brand/30 rounded-2xl p-4 text-sm text-left">
+            {order.mode === 'retiro'
+              ? <p>🏪 Tu pedido estará listo en <strong>{storeInfo.name}</strong> en aprox. <strong>2 horas</strong>. Te avisaremos por WhatsApp.</p>
+              : <p>🚚 Tu pedido será despachado en las próximas <strong>24 horas</strong>. Te avisaremos por WhatsApp cuando esté en camino.</p>}
+          </div>
+
+          <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href={WHATSAPP} target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2 border-2 border-green-500 text-green-600 hover:bg-green-50 font-bold text-sm rounded-full px-6 py-3 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
+              ¿Tienes dudas? Escríbenos
+            </a>
+            <button onClick={() => navigate('home')} className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-full px-8 py-3 transition-colors">
+              Seguir comprando
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="page-enter max-w-7xl mx-auto px-4 mt-8">
+      <Stepper step={step} />
+      <div className="grid lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2">
+          {/* ====== STEP 1 — ENTREGA ====== */}
+          {step === 1 && (
+            <div className="bg-white border border-neutral-200 rounded-2xl p-5 md:p-7">
+              <h1 className="text-xl font-extrabold mb-5">¿Cómo quieres recibir tu pedido?</h1>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {[{ id: 'retiro', icon: '🏪', label: 'Retiro en tienda' }, { id: 'envio', icon: '🚚', label: 'Envío a domicilio' }].map((m) => (
+                  <button key={m.id} onClick={() => setMode(m.id)}
+                    className={'rounded-2xl border-2 p-4 text-sm font-bold flex flex-col items-center gap-1.5 transition-colors ' +
+                      (mode === m.id ? 'border-brand bg-brand-light text-brand-dark' : 'border-neutral-200 hover:border-neutral-300')}>
+                    <span className="text-2xl">{m.icon}</span>{m.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3.5 mb-5">
+                <div>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Nombre completo</label>
+                  <input className={inputCls + ' mt-1'} placeholder="María Pérez" value={form.nombre} onChange={set('nombre')} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Teléfono (WhatsApp)</label>
+                  <input className={inputCls + ' mt-1'} placeholder="0412-555-0123" value={form.telefono} onChange={set('telefono')} />
+                </div>
+              </div>
+
+              {mode === 'envio' ? (
+                <div className="grid sm:grid-cols-2 gap-3.5">
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Dirección</label>
+                    <input className={inputCls + ' mt-1'} placeholder="Av. Principal, Edif./Casa, piso, apto." value={form.direccion} onChange={set('direccion')} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Ciudad</label>
+                    <input className={inputCls + ' mt-1'} value={form.ciudad} onChange={set('ciudad')} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Estado</label>
+                    <input className={inputCls + ' mt-1'} value={form.estado} onChange={set('estado')} />
+                  </div>
+                  <p className="sm:col-span-2 text-xs text-neutral-500">📦 Envío <strong className="text-green-600">gratis</strong> en Caracas. Para envío nacional calcularemos el costo antes de despachar.</p>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Elige tu sucursal</label>
+                  <div className="grid sm:grid-cols-2 gap-3 mt-2">
+                    {STORES.map((s) => (
+                      <button key={s.id} onClick={() => setStore(s.id)}
+                        className={'text-left rounded-2xl border-2 p-4 transition-colors ' + (store === s.id ? 'border-brand bg-brand-light' : 'border-neutral-200 hover:border-neutral-300')}>
+                        <p className="font-extrabold text-sm flex items-center gap-2">📍 {s.name} {store === s.id && <span className="text-brand text-xs">✓ Seleccionada</span>}</p>
+                        <p className="text-xs text-neutral-500 mt-1">{s.addr}</p>
+                        <p className="text-xs text-neutral-400 mt-1">{s.hours}</p>
+                        <p className="text-xs font-bold text-green-600 mt-2">⏱ Listo para retiro en ~2 horas</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button onClick={() => { if (canStep1) { setStep(2); window.scrollTo({ top: 0 }); } }} disabled={!canStep1}
+                className={'mt-7 w-full font-bold rounded-2xl py-4 transition-colors ' + (canStep1 ? 'bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25' : 'bg-neutral-200 text-neutral-400 cursor-not-allowed')}>
+                Continuar →
+              </button>
+              {!canStep1 && <p className="text-xs text-neutral-400 text-center mt-2">Completa tu nombre, teléfono{mode === 'envio' ? ' y dirección' : ''} para continuar</p>}
+            </div>
+          )}
+
+          {/* ====== STEP 2 — PAGO ====== */}
+          {step === 2 && (
+            <div className="bg-white border border-neutral-200 rounded-2xl p-5 md:p-7">
+              <h1 className="text-xl font-extrabold mb-1">Elige cómo pagar</h1>
+              <p className="text-sm text-neutral-500 mb-5">Total a pagar: <strong className="text-brand">{usd(subtotal)}</strong> <span className="text-xs text-neutral-400">| {bsEq(subtotal)}</span></p>
+
+              <div className="space-y-3">
+                {PAY_METHODS.map((m) => {
+                  const disabled = m.id === 'efectivo' && mode !== 'retiro';
+                  const selected = pay === m.id;
+                  const isCashea = m.id === 'cashea';
+                  return (
+                    <div key={m.id}
+                      onClick={() => !disabled && setPay(m.id)}
+                      className={'rounded-2xl border-2 transition-all ' +
+                        (disabled ? 'border-neutral-100 bg-neutral-50 opacity-60 cursor-not-allowed'
+                          : selected ? (isCashea ? 'border-yellow-400 bg-yellow-50 cursor-pointer' : 'border-brand bg-brand-light cursor-pointer')
+                          : (isCashea ? 'border-yellow-300 bg-yellow-50/50 hover:border-yellow-400 cursor-pointer' : 'border-neutral-200 hover:border-neutral-300 cursor-pointer'))}>
+                      <div className="flex items-center gap-3.5 px-4 py-3.5">
+                        <span className="text-2xl">{m.icon}</span>
+                        <div className="flex-1">
+                          <p className="font-bold text-sm flex items-center gap-2">
+                            {m.title}
+                            {isCashea && <span className="bg-yellow-400 text-black text-[10px] font-extrabold rounded px-1.5 py-0.5">COMPRA AHORA, PAGA DESPUÉS</span>}
+                          </p>
+                          <p className="text-xs text-neutral-500">{m.sub}</p>
+                          {disabled && <p className="text-[11px] text-amber-600 font-semibold mt-0.5">Disponible solo con retiro en tienda</p>}
+                        </div>
+                        <span className={'w-5 h-5 rounded-full border-2 flex items-center justify-center ' + (selected ? 'border-brand bg-brand' : 'border-neutral-300')}>
+                          {selected && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                        </span>
+                      </div>
+
+                      {selected && !disabled && (
+                        <div className="px-4 pb-4 pt-1 border-t border-black/5 text-sm" onClick={(e) => e.stopPropagation()}>
+                          {m.id === 'tarjeta' && (
+                            <div className="grid grid-cols-2 gap-3 mt-2">
+                              <input className={inputCls + ' col-span-2'} placeholder="Número de tarjeta  ····  ····  ····  ····" />
+                              <input className={inputCls} placeholder="MM/AA" />
+                              <input className={inputCls} placeholder="CVV" />
+                              <p className="col-span-2 text-[11px] text-neutral-400">🔒 Pago seguro · Visa, Mastercard y Amex</p>
+                            </div>
+                          )}
+                          {m.id === 'pagomovil' && (
+                            <div className="mt-2 space-y-2">
+                              <div className="bg-white rounded-xl border border-neutral-200 p-3 text-xs space-y-1">
+                                <p><strong>Banco:</strong> Banesco (0134)</p>
+                                <p><strong>RIF:</strong> J-404684034</p>
+                                <p><strong>Teléfono:</strong> 0412-555-0123</p>
+                              </div>
+                              <p className="text-[11px] text-neutral-500">📲 Envía tu comprobante por WhatsApp al <strong>+58 412-5550123</strong></p>
+                            </div>
+                          )}
+                          {m.id === 'zelle' && (
+                            <div className="mt-2 space-y-2">
+                              <div className="bg-white rounded-xl border border-neutral-200 p-3 text-xs">
+                                <p><strong>Zelle:</strong> pagos@alkosto.com.ve</p>
+                              </div>
+                              <p className="text-[11px] text-neutral-500">📲 Envía el comprobante por WhatsApp para confirmar tu pago</p>
+                            </div>
+                          )}
+                          {m.id === 'transferencia' && (
+                            <div className="mt-2 space-y-2">
+                              <div className="bg-white rounded-xl border border-neutral-200 p-3 text-xs space-y-1">
+                                <p><strong>Banesco:</strong> 0134-0000-00-0000000000 · Alkosto C.A.</p>
+                                <p><strong>Mercantil:</strong> 0105-0000-00-0000000000 · Alkosto C.A.</p>
+                                <p><strong>Venezuela:</strong> 0102-0000-00-0000000000 · Alkosto C.A.</p>
+                                <p><strong>RIF:</strong> J-404684034</p>
+                              </div>
+                              <p className="text-[11px] text-neutral-500">📲 Envía el comprobante por WhatsApp para confirmar tu pago</p>
+                            </div>
+                          )}
+                          {m.id === 'cashea' && (
+                            <div className="mt-2 space-y-2">
+                              <p className="text-sm"><strong>Inicial desde 20%</strong> + hasta <strong>15 cuotas sin interés</strong></p>
+                              <p className="text-xs text-neutral-500">Necesitas tener la app de Cashea activa con cupo disponible.</p>
+                              <button onClick={() => setCasheaFaq(!casheaFaq)} className="text-xs font-bold text-yellow-700 hover:text-yellow-800">
+                                ¿Cómo funciona Cashea? {casheaFaq ? '▴' : '→'}
+                              </button>
+                              {casheaFaq && (
+                                <div className="bg-white rounded-xl border border-yellow-200 p-3 text-xs space-y-2">
+                                  <p><strong>1.</strong> Descarga la app de Cashea y regístrate con tu cédula.</p>
+                                  <p><strong>2.</strong> Al confirmar el pedido, escanea el QR que te mostramos en tienda o en línea.</p>
+                                  <p><strong>3.</strong> Paga la inicial desde 20% y el resto en cuotas quincenales sin interés.</p>
+                                  <p><strong>4.</strong> Tu nivel en Cashea define el número de cuotas (hasta 15).</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {m.id === 'efectivo' && (
+                            <p className="mt-2 text-xs text-neutral-500">Paga en efectivo (USD o Bs.) al retirar en <strong>{STORES.find((s) => s.id === store).name}</strong>. Reservamos tu pedido por 48 horas.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex gap-3 mt-7">
+                <button onClick={() => { setStep(1); window.scrollTo({ top: 0 }); }} className="px-5 py-4 rounded-2xl border-2 border-neutral-200 font-bold text-sm text-neutral-500 hover:border-neutral-300">← Volver</button>
+                <button onClick={() => { if (pay) confirm(); }} disabled={!pay}
+                  className={'flex-1 font-bold rounded-2xl py-4 transition-colors ' + (pay ? 'bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25' : 'bg-neutral-200 text-neutral-400 cursor-not-allowed')}>
+                  Confirmar pedido
+                </button>
+              </div>
+              {!pay && <p className="text-xs text-neutral-400 text-center mt-2">Selecciona un método de pago para confirmar</p>}
+            </div>
+          )}
+        </div>
+        {summary()}
+      </div>
+    </main>
+  );
+}
+
+/* ============================== APP SHELL ============================== */
+function Toast({ toast }) {
+  if (!toast) return null;
+  return (
+    <div className="toast-enter fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-sm font-semibold rounded-full px-5 py-3 shadow-xl flex items-center gap-2">
+      <span className="text-green-400">✓</span> {toast}
+    </div>
+  );
+}
+
+function App() {
+  const [page, setPage] = useState({ name: 'home' });
+  const [cart, setCart] = useState([]);
+  const [wish, setWish] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [search, setSearch] = useState('');
+  const [myStore, setMyStore] = useState(null);
+
+  const navigate = (name, opts = {}) => { setPage({ name, ...opts, key: Date.now() }); window.scrollTo({ top: 0 }); };
+
+  const showToast = (msg) => {
+    setToast(msg);
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(() => setToast(null), 2200);
+  };
+
+  const addToCart = (id) => {
+    setCart((c) => {
+      const f = c.find((l) => l.id === id);
+      return f ? c.map((l) => (l.id === id ? { ...l, qty: l.qty + 1 } : l)) : [...c, { id, qty: 1 }];
+    });
+    showToast('Agregado al carrito');
+  };
+  const setQty = (id, qty) => setCart((c) => (qty <= 0 ? c.filter((l) => l.id !== id) : c.map((l) => (l.id === id ? { ...l, qty } : l))));
+  const removeFromCart = (id) => setCart((c) => c.filter((l) => l.id !== id));
+  const clearCart = () => setCart([]);
+  const toggleWish = (id) => setWish((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]));
+
+  const ctx = { navigate, cart, addToCart, setQty, removeFromCart, clearCart, wish, toggleWish, search, setSearch, myStore, setMyStore, showToast };
+
+  return (
+    <Ctx.Provider value={ctx}>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1" key={page.key}>
+          {page.name === 'home' && <Home />}
+          {page.name === 'category' && <CategoryPage cat={page.cat} query={page.query} ofertas={page.ofertas} />}
+          {page.name === 'product' && <ProductDetail id={page.id} />}
+          {page.name === 'cart' && <CartPage />}
+          {page.name === 'checkout' && <Checkout />}
+          {page.name === 'wishlist' && <WishlistPage />}
+        </div>
+        <Footer />
+        <WhatsAppFab />
+        <Toast toast={toast} />
+      </div>
+    </Ctx.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
