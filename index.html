@@ -1096,7 +1096,8 @@ function ProductDetail({ id }) {
   const [tab, setTab] = useState('desc');
   const inicial = Math.round(p.price / 6);
   const cuota = Math.round((p.price - inicial) / 6);
-  const related = PRODUCTS.filter((x) => x.id !== p.id && (x.cat === p.cat || x.brand === p.brand)).slice(0, 4);
+  const related = PRODUCTS.filter((x) => x.id !== p.id && x.cat === p.cat).slice(0, 4);
+  const sameLine = PRODUCTS.filter((x) => x.id !== p.id && x.brand === p.brand && x.cat !== p.cat).slice(0, 4);
   const catInfo = CATEGORIES.find((c) => c.id === p.cat);
 
   const tabs = [
@@ -1291,11 +1292,21 @@ function ProductDetail({ id }) {
 
       {/* Related */}
       <section className="mt-12">
-        <h2 className="text-xl md:text-2xl font-extrabold mb-5">Productos <span className="text-brand">relacionados</span></h2>
+        <h2 className="text-xl md:text-2xl font-extrabold mb-5">Productos <span className="text-brand">similares</span></h2>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x">
           {related.map((r) => <div key={r.id} className="w-56 md:w-64 shrink-0 snap-start"><ProductCard p={r} /></div>)}
         </div>
       </section>
+
+      {/* Same line / brand cross-sell */}
+      {sameLine.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-xl md:text-2xl font-extrabold mb-5">Completa tu línea <span className="text-brand">{p.brand}</span></h2>
+          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 snap-x">
+            {sameLine.map((r) => <div key={r.id} className="w-56 md:w-64 shrink-0 snap-start"><ProductCard p={r} /></div>)}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
