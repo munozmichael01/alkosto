@@ -402,12 +402,8 @@ const useApp = () => useContext(Ctx);
 /* ============================== ATOMS ============================== */
 function Logo({ onClick, compact }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center leading-none shrink-0 group" aria-label="Alkosto inicio">
-      <svg viewBox="0 0 24 24" className={compact ? 'w-5 h-5' : 'w-6 h-6'} fill="none" stroke="#E8651A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10.5V20h13v-9.5" />
-      </svg>
-      <span className={'font-extrabold tracking-tight text-ink ' + (compact ? 'text-lg' : 'text-2xl')}>alkosto</span>
-      {!compact && <span className="text-[10px] italic font-semibold text-brand -mt-0.5">Más que Hogar</span>}
+    <button onClick={onClick} className="flex items-center shrink-0" aria-label="Alkosto inicio">
+      <img src="images/logo-alkosto.png" alt="Alkosto - Más que Hogar" className={compact ? 'h-9' : 'h-12'} />
     </button>
   );
 }
