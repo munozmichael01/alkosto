@@ -56,7 +56,7 @@ const STORES = [
 const RAW_PRODUCTS = [
   /* ============ COCINAS Y HORNOS ============ */
   {
-    id: 'kcgc506', brand: 'KitchenAid', name: 'Estufa Empotrable a Gas 6 Quemadores', model: 'KCGC506JSS',
+    id: 'kcgc506', brand: 'KitchenAid', name: 'Estufa Empotrable a Gas 6 Quemadores', model: 'KCGC506JSS', img: 'images/kcgc506.jpg',
     price: 1849, oldPrice: 2099, cat: 'cocinas', tipo: 'Tope de cocina', stock: 'disponible',
     sales: 98, rating: 4.8, reviews: 14, icon: '🍳', tone: 'from-zinc-300 via-zinc-100 to-zinc-400',
     dims: { ancho: 90.8, alto: 18.9, fondo: 68.6 },
@@ -128,7 +128,7 @@ const RAW_PRODUCTS = [
   },
   /* ============ NEVERAS Y FREEZERS ============ */
   {
-    id: 'lginsta', brand: 'LG', name: 'Nevera InstaView Door-in-Door 22 pies', model: 'GS65SPP1',
+    id: 'lginsta', brand: 'LG', name: 'Nevera InstaView Door-in-Door 22 pies', model: 'GS65SPP1', img: 'images/lginsta.jpg',
     price: 1890, oldPrice: 2190, cat: 'neveras', sales: 91, rating: 4.7, reviews: 32, icon: '🧊', tone: 'from-slate-400 via-slate-200 to-slate-500',
     dims: { ancho: 91.2, alto: 179, fondo: 73.8 },
     desc: 'Nevera LG InstaView con panel de vidrio: toca dos veces y mira adentro sin abrir la puerta. Compresor Smart Inverter con 10 años de garantía.',
@@ -187,7 +187,7 @@ const RAW_PRODUCTS = [
     medidas: ['Ancho: 69 cm', 'Alto: 107 cm', 'Profundidad: 71 cm', 'Alimentación: 110V'],
   },
   {
-    id: 'lgwm22', brand: 'LG', name: 'Lavadora Carga Frontal 22 kg AI DD', model: 'WM22VV2S6B',
+    id: 'lgwm22', brand: 'LG', name: 'Lavadora Carga Frontal 22 kg AI DD', model: 'WM22VV2S6B', img: 'images/lgwm22.jpg',
     price: 980, oldPrice: 1120, cat: 'lavadoras', sales: 95, rating: 4.8, reviews: 27, icon: '🌀', tone: 'from-slate-600 via-slate-400 to-slate-700',
     dims: { ancho: 70, alto: 99, fondo: 76 },
     desc: 'Lavadora LG de carga frontal con inteligencia artificial AI DD que detecta el tipo de tejido y optimiza el lavado.',
@@ -228,7 +228,7 @@ const RAW_PRODUCTS = [
   },
   /* ============ AIRES ACONDICIONADOS ============ */
   {
-    id: 'gt12inv', brand: 'G-Tronic', name: 'Aire Acondicionado Split Inverter 12.000 BTU', model: 'GT-12INV',
+    id: 'gt12inv', brand: 'G-Tronic', name: 'Aire Acondicionado Split Inverter 12.000 BTU', model: 'GT-12INV', img: 'images/gt12inv.jpg',
     price: 389, oldPrice: 450, cat: 'aires', volt: '220V', sales: 105, rating: 4.5, reviews: 31, icon: '❄️', tone: 'from-sky-100 via-white to-sky-200',
     dims: { ancho: 80, alto: 28, fondo: 19 },
     desc: 'Split inverter de 12.000 BTU con bajo consumo y refrigerante ecológico R410A.',
@@ -321,7 +321,7 @@ const RAW_PRODUCTS = [
   },
   /* ============ TELEVISORES Y AUDIO ============ */
   {
-    id: 'samtv65', brand: 'Samsung', name: 'Smart TV Crystal UHD 65" 4K', model: 'UN65DU7000',
+    id: 'samtv65', brand: 'Samsung', name: 'Smart TV Crystal UHD 65" 4K', model: 'UN65DU7000', img: 'images/samtv65.jpg',
     price: 749, oldPrice: 899, cat: 'tv', sales: 120, rating: 4.7, reviews: 52, icon: '📺', tone: 'from-indigo-900 via-slate-700 to-indigo-950',
     dims: { ancho: 144.8, alto: 82.9, fondo: 6 },
     desc: 'Smart TV Samsung 65 pulgadas con resolución 4K Crystal UHD, procesador Crystal 4K y Tizen OS.',
@@ -329,7 +329,7 @@ const RAW_PRODUCTS = [
     medidas: ['Pantalla: 65"', 'Ancho: 144.8 cm', 'Alto: 82.9 cm (sin base)', 'Alimentación: 110V'],
   },
   {
-    id: 'lgoled55', brand: 'LG', name: 'LG OLED evo 55" 4K Smart TV', model: 'OLED55C4',
+    id: 'lgoled55', brand: 'LG', name: 'LG OLED evo 55" 4K Smart TV', model: 'OLED55C4', img: 'images/lgoled55.jpg',
     price: 1290, oldPrice: 1490, cat: 'tv', sales: 84, rating: 4.9, reviews: 34, icon: '📺', tone: 'from-black via-zinc-800 to-zinc-950',
     dims: { ancho: 122.2, alto: 70.3, fondo: 4.5 },
     desc: 'El mejor color en su clase: OLED evo con procesador α9 AI Gen7, Dolby Vision y webOS 24.',
@@ -386,6 +386,9 @@ const CATEGORIES = [
 ];
 
 const BRANDS = ['KitchenAid', 'Whirlpool', 'LG', 'Samsung', 'G-Tronic', 'Oster'];
+const BRAND_LOGOS = {
+  // Map brand name -> 'images/brands/<archivo>.png' once logos are added
+};
 
 /* ============================== CONTEXT ============================== */
 const Ctx = createContext(null);
@@ -471,6 +474,13 @@ function CategoryIcon({ id, className }) {
 
 function ProductImage({ p, className }) {
   const cls = className || '';
+  if (p.img) {
+    return (
+      <div className={'bg-white flex items-center justify-center select-none overflow-hidden ' + cls}>
+        <img src={p.img} alt={p.name} className="w-full h-full object-contain" loading="lazy" />
+      </div>
+    );
+  }
   return (
     <div className={'bg-gradient-to-br ' + p.tone + ' flex items-center justify-center select-none ' + cls + (/text-/.test(cls) ? '' : ' text-7xl')}>
       <span className="drop-shadow-sm">{p.icon}</span>
@@ -871,7 +881,9 @@ function Home() {
           <p className="text-center text-xs uppercase tracking-widest text-neutral-400 font-bold mb-5">Marcas oficiales</p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {BRANDS.map((b) => (
-              <span key={b} className="text-lg md:text-xl font-extrabold text-neutral-300 hover:text-ink transition-colors cursor-default tracking-tight">{b}</span>
+              BRAND_LOGOS[b]
+                ? <img key={b} src={BRAND_LOGOS[b]} alt={b} className="h-6 md:h-8 object-contain opacity-60 hover:opacity-100 transition-opacity" />
+                : <span key={b} className="text-lg md:text-xl font-extrabold text-neutral-300 hover:text-ink transition-colors cursor-default tracking-tight">{b}</span>
             ))}
           </div>
         </div>
