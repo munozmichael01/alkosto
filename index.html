@@ -494,26 +494,35 @@ function ProductImage({ p, className }) {
 
 function ARViewModal({ p, onClose }) {
   const mvRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [captureMsg, setCaptureMsg] = useState('');
   const modelSrc = 'images/3D/' + p.id + '.glb';
 
+  useEffect(() => {
+    const mv = mvRef.current;
+    if (!mv) return;
+    const onLoad = () => setLoaded(true);
+    mv.addEventListener('load', onLoad);
+    return () => mv.removeEventListener('load', onLoad);
+  }, []);
+
   const handleCapture = async () => {
     const mv = mvRef.current;
-    if (!mv || !mv.toBlob) return;
+    if (!mv || !mv.toBlob || !loaded) return;
     setCapturing(true);
     setCaptureMsg('');
     try {
       const blob = await mv.toBlob({ idealAspect: true });
-      const file = new File([blob], p.id + '-ar.png', { type: 'image/png' });
+      const file = new File([blob], p.id + '-vista3d.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: p.name, text: 'Mi espacio con ' + p.name });
-        setCaptureMsg('¡Listo! Guarda la imagen desde el menú para compartir.');
+        await navigator.share({ files: [file], title: p.name, text: 'Vista 3D: ' + p.name });
+        setCaptureMsg('Elige "Guardar imagen" en el menú para añadirla a tu galería.');
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = p.id + '-ar.png';
+        a.download = p.id + '-vista3d.png';
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -521,7 +530,7 @@ function ARViewModal({ p, onClose }) {
         setCaptureMsg('Imagen descargada. Revisa tu galería o carpeta de descargas.');
       }
     } catch (err) {
-      setCaptureMsg('No se pudo capturar la imagen. Intenta de nuevo.');
+      setCaptureMsg('No se pudo generar la imagen. Intenta de nuevo en unos segundos.');
     }
     setCapturing(false);
   };
@@ -541,18 +550,26 @@ function ARViewModal({ p, onClose }) {
             shadow-intensity="1"
             style={{ width: '100%', height: '100%', backgroundColor: '#f5f5f5' }}
           ></model-viewer>
+          {!loaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-100/80 text-sm text-neutral-500">
+              Cargando modelo 3D…
+            </div>
+          )}
           <button onClick={onClose} aria-label="Cerrar" className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 z-10">✕</button>
           <span className="absolute top-3 left-3 bg-black/40 text-white text-[11px] font-bold px-2.5 py-1 rounded-full z-10">Modelo 3D</span>
         </div>
         <div className="p-5">
           <p className="font-bold text-sm flex items-center gap-2">📱 Ver {p.name} en tu espacio</p>
           <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
-            Gira el modelo con el dedo para verlo desde todos los ángulos. En tu celular, toca el ícono AR para ubicarlo a escala real en tu hogar.
+            Gira el modelo con el dedo para verlo desde todos los ángulos.
+          </p>
+          <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
+            En tu celular, toca el ícono <span className="font-semibold">AR</span> de la esquina para abrir el visor de Realidad Aumentada de tu dispositivo (Quick Look en iOS / Scene Viewer en Android) y ubicar el producto a escala real en tu hogar.
           </p>
           {captureMsg && <p className="text-xs text-brand mt-2 font-semibold">{captureMsg}</p>}
           <div className="mt-4 flex gap-3">
-            <button onClick={handleCapture} disabled={capturing} className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3 transition-colors">
-              {capturing ? 'Capturando…' : '📸 Capturar y guardar'}
+            <button onClick={handleCapture} disabled={capturing || !loaded} className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3 transition-colors">
+              {capturing ? 'Generando…' : !loaded ? 'Cargando…' : '📷 Compartir vista 3D'}
             </button>
             <button onClick={onClose} className="flex-1 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
           </div>
