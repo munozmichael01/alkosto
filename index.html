@@ -55,6 +55,8 @@ const usd = (n) => '$' + n.toLocaleString('en-US');
 const bsEq = (n) => 'Bs. ' + (n * BCV).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const cuotaMes = (p) => Math.round(p / 6);
 const WHATSAPP = 'https://wa.me/584142556786';
+const COUPONS = { 'ALKOSTO20': 0.20 };
+
 const waLink = (p) => {
   const msg = p
     ? `Hola, me interesa el ${p.name} (Ref: ${p.id}). ¿Tienen disponibilidad?`
@@ -1611,13 +1613,26 @@ function Checkout() {
   const [casheaFaq, setCasheaFaq] = useState(false);
   const [order, setOrder] = useState(null);
 
+  const [couponInput, setCouponInput] = useState('');
+  const [coupon, setCoupon] = useState(null);
+  const [couponMsg, setCouponMsg] = useState('');
+
   const lines = cart.map((l) => ({ ...l, p: PRODUCTS.find((p) => p.id === l.id) }));
   const subtotal = lines.reduce((a, l) => a + l.p.price * l.qty, 0);
+  const discount = coupon ? Math.round(subtotal * coupon.pct) : 0;
+  const total = subtotal - discount;
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const canStep1 = form.nombre.trim() && form.telefono.trim() && (mode === 'retiro' || form.direccion.trim());
 
+  const applyCoupon = () => {
+    const code = couponInput.trim().toUpperCase();
+    const pct = COUPONS[code];
+    if (pct) { setCoupon({ code, pct }); setCouponMsg(''); }
+    else { setCoupon(null); setCouponMsg('Cupón no válido'); }
+  };
+
   const confirm = () => {
-    setOrder({ lines, subtotal, mode, store, pay, nombre: form.nombre });
+    setOrder({ lines, subtotal, discount, total, coupon: coupon?.code, mode, store, pay, nombre: form.nombre });
     clearCart();
     setStep(3);
     window.scrollTo({ top: 0 });
@@ -1646,20 +1661,45 @@ function Checkout() {
           </div>
         ))}
       </div>
+      {!data && (
+        <div className="mt-4">
+          <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Cupón de descuento</label>
+          <div className="flex gap-2 mt-1.5">
+            <input
+              value={couponInput}
+              onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponMsg(''); }}
+              onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+              placeholder="Ej. ALKOSTO20"
+              className="flex-1 border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand uppercase"
+            />
+            <button onClick={applyCoupon} className="bg-neutral-100 hover:bg-neutral-200 text-ink font-bold text-sm rounded-xl px-3 py-2 transition-colors">
+              Aplicar
+            </button>
+          </div>
+          {couponMsg && <p className="text-xs text-red-500 mt-1">{couponMsg}</p>}
+          {coupon && <p className="text-xs text-green-600 font-semibold mt-1">Cupón <strong>{coupon.code}</strong> aplicado — {Math.round(coupon.pct * 100)}% de descuento</p>}
+        </div>
+      )}
       <div className="border-t border-neutral-200 mt-4 pt-3 space-y-1.5 text-sm">
         <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="font-semibold">{usd(data ? order.subtotal : subtotal)}</span></div>
+        {(data ? order.discount > 0 : discount > 0) && (
+          <div className="flex justify-between text-green-600">
+            <span>Descuento ({data ? order.coupon : coupon?.code})</span>
+            <span className="font-semibold">-{usd(data ? order.discount : discount)}</span>
+          </div>
+        )}
         <div className="flex justify-between"><span className="text-neutral-500">Envío</span><span className="font-semibold text-green-600">{(data ? order.mode : mode) === 'retiro' ? 'Gratis (retiro)' : 'Gratis (Caracas)'}</span></div>
       </div>
       <div className="border-t border-neutral-200 mt-3 pt-3">
         <div className="flex justify-between items-baseline">
           <span className="font-bold">Total</span>
-          <span className="text-2xl font-extrabold text-brand">{usd(data ? order.subtotal : subtotal)}</span>
+          <span className="text-2xl font-extrabold text-brand">{usd(data ? order.total : total)}</span>
         </div>
-        <p className="text-right text-xs text-neutral-400">{bsEq(data ? order.subtotal : subtotal)}</p>
+        <p className="text-right text-xs text-neutral-400">{bsEq(data ? order.total : total)}</p>
       </div>
       <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-[11px]">
         <span className="bg-yellow-400 text-black font-extrabold rounded px-1 py-0.5 mr-1">Cashea</span>
-        Divide en 6 cuotas desde <strong>${cuotaMes(data ? order.subtotal : subtotal)}/mes</strong>
+        Divide en 6 cuotas desde <strong>${cuotaMes(data ? order.total : total)}/mes</strong>
       </div>
     </aside>
   );
@@ -1685,9 +1725,15 @@ function Checkout() {
                 <span className="font-bold">{usd(l.p.price * l.qty)}</span>
               </div>
             ))}
+            {order.discount > 0 && (
+              <div className="flex justify-between text-sm text-green-600 pt-1">
+                <span>Descuento ({order.coupon})</span>
+                <span className="font-semibold">-{usd(order.discount)}</span>
+              </div>
+            )}
             <div className="border-t border-neutral-200 pt-3 flex justify-between items-baseline">
               <span className="font-bold text-sm">Total pagado</span>
-              <span><span className="font-extrabold text-brand text-xl">{usd(order.subtotal)}</span> <span className="text-xs text-neutral-400">| {bsEq(order.subtotal)}</span></span>
+              <span><span className="font-extrabold text-brand text-xl">{usd(order.total)}</span> <span className="text-xs text-neutral-400">| {bsEq(order.total)}</span></span>
             </div>
           </div>
 
@@ -1786,7 +1832,7 @@ function Checkout() {
           {step === 2 && (
             <div className="bg-white border border-neutral-200 rounded-2xl p-5 md:p-7">
               <h1 className="text-xl font-extrabold mb-1">Elige cómo pagar</h1>
-              <p className="text-sm text-neutral-500 mb-5">Total a pagar: <strong className="text-brand">{usd(subtotal)}</strong> <span className="text-xs text-neutral-400">| {bsEq(subtotal)}</span></p>
+              <p className="text-sm text-neutral-500 mb-5">Total a pagar: <strong className="text-brand">{usd(total)}</strong> <span className="text-xs text-neutral-400">| {bsEq(total)}</span></p>
 
               <div className="space-y-3">
                 {PAY_METHODS.map((m) => {
