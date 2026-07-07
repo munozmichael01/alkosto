@@ -31,6 +31,8 @@
   @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
   .drop-enter { animation: dropIn .18s ease both; }
   input[type=range] { accent-color: #E8651A; }
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea { font-size: max(16px, 1em); }
 </style>
 <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -1912,7 +1914,9 @@ function App() {
   const [search, setSearch] = useState('');
   const [myStore, setMyStore] = useState(null);
 
-  const navigate = (name, opts = {}) => { setPage({ name, ...opts, key: Date.now() }); window.scrollTo({ top: 0 }); };
+  const navigate = (name, opts = {}) => { setPage({ name, ...opts, key: Date.now() }); };
+
+  useEffect(() => { window.scrollTo(0, 0); }, [page.key]);
 
   useEffect(() => {
     const pid = new URLSearchParams(window.location.search).get('p');
