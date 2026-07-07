@@ -1768,8 +1768,8 @@ function Checkout() {
 
           <div className="mt-6 bg-brand-light border border-brand/30 rounded-2xl p-4 text-sm text-left">
             {order.mode === 'retiro'
-              ? <p className="flex items-center gap-2"><Icon name="store" className="w-5 h-5 shrink-0" /> Tu pedido estará listo en <strong>{storeInfo.name}</strong> en aprox. <strong>2 horas</strong>. Te avisaremos por WhatsApp.</p>
-              : <p className="flex items-center gap-2"><Icon name="truck" className="w-5 h-5 shrink-0" /> Tu pedido será despachado en las próximas <strong>24 horas</strong>. Te avisaremos por WhatsApp cuando esté en camino.</p>}
+              ? <p className="flex items-center gap-2"><Icon name="store" className="w-5 h-5 shrink-0" /><span>Tu pedido estará listo en <strong>{storeInfo.name}</strong> en aprox. <strong>2 horas</strong>. Te avisaremos por WhatsApp.</span></p>
+              : <p className="flex items-center gap-2"><Icon name="truck" className="w-5 h-5 shrink-0" /><span>Tu pedido será despachado en las próximas <strong>24 horas</strong>. Te avisaremos por WhatsApp cuando esté en camino.</span></p>}
           </div>
 
           <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
