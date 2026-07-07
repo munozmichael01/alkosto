@@ -507,7 +507,13 @@ function ARViewModal({ p, onClose }) {
     return () => mv.removeEventListener('load', onLoad);
   }, []);
 
-  const handleCapture = async () => {
+  const handleAR = () => {
+    const mv = mvRef.current;
+    if (!mv || !loaded) return;
+    mv.activateAR();
+  };
+
+  const handleShare = async () => {
     const mv = mvRef.current;
     if (!mv || !mv.toBlob || !loaded) return;
     setCapturing(true);
@@ -517,7 +523,6 @@ function ARViewModal({ p, onClose }) {
       const file = new File([blob], p.id + '-vista3d.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: p.name, text: 'Vista 3D: ' + p.name });
-        setCaptureMsg('Elige "Guardar imagen" en el menú para añadirla a tu galería.');
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -527,11 +532,9 @@ function ARViewModal({ p, onClose }) {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        setCaptureMsg('Imagen descargada. Revisa tu galería o carpeta de descargas.');
+        setCaptureMsg('Imagen descargada.');
       }
-    } catch (err) {
-      setCaptureMsg('No se pudo generar la imagen. Intenta de nuevo en unos segundos.');
-    }
+    } catch (err) { }
     setCapturing(false);
   };
 
@@ -559,20 +562,20 @@ function ARViewModal({ p, onClose }) {
           <span className="absolute top-3 left-3 bg-black/40 text-white text-[11px] font-bold px-2.5 py-1 rounded-full z-10">Modelo 3D</span>
         </div>
         <div className="p-5">
-          <p className="font-bold text-sm flex items-center gap-2">📱 Ver {p.name} en tu espacio</p>
-          <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
-            Gira el modelo con el dedo para verlo desde todos los ángulos.
-          </p>
-          <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-            En tu celular, toca el ícono <span className="font-semibold">AR</span> de la esquina para abrir el visor de Realidad Aumentada de tu dispositivo (Quick Look en iOS / Scene Viewer en Android) y ubicar el producto a escala real en tu hogar.
+          <p className="font-bold text-sm">{p.name}</p>
+          <p className="text-sm text-neutral-500 mt-1 leading-relaxed">
+            Gira el modelo con un dedo · Usa dos dedos para acercar
           </p>
           {captureMsg && <p className="text-xs text-brand mt-2 font-semibold">{captureMsg}</p>}
           <div className="mt-4 flex gap-3">
-            <button onClick={handleCapture} disabled={capturing || !loaded} className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3 transition-colors">
-              {capturing ? 'Generando…' : !loaded ? 'Cargando…' : '📷 Compartir vista 3D'}
+            <button onClick={handleAR} disabled={!loaded} className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3 transition-colors">
+              {!loaded ? 'Cargando…' : '📱 Ver en AR'}
             </button>
             <button onClick={onClose} className="flex-1 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
           </div>
+          <button onClick={handleShare} disabled={capturing || !loaded} className="mt-2 w-full text-xs text-neutral-400 hover:text-neutral-600 disabled:opacity-40 py-1 transition-colors">
+            {capturing ? 'Generando imagen…' : '↗ Compartir captura'}
+          </button>
         </div>
       </div>
     </div>,
@@ -1256,7 +1259,7 @@ function ProductDetail({ id }) {
             <button onClick={() => setShowAR(true)}
               className="mt-3 w-full flex items-center justify-center gap-2 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3 4 7v10l8 4 8-4V7l-8-4zM4 7l8 4 8-4M12 11v10" /></svg>
-              Ver en tu espacio (AR)
+              Ver en 3D
             </button>
           )}
           {showAR && MODELS_3D.has(p.id) && <ARViewModal p={p} onClose={() => setShowAR(false)} />}
