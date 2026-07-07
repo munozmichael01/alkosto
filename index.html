@@ -428,7 +428,7 @@ function TasaPill({ dark }) {
   return (
     <span className={'inline-flex items-center gap-1 rounded-full text-[11px] font-semibold px-2.5 py-1 whitespace-nowrap ' + (dark ? 'bg-white/10 text-orange-300' : 'bg-brand-light text-brand-dark')}>
       Tasa BCV hoy: Bs. 46.50/$
-      <button title="Actualizar tasa (demo)" className="hover:rotate-180 transition-transform duration-300">🔄</button>
+      <button title="Actualizar tasa (demo)" className="hover:rotate-180 transition-transform duration-300"><Icon name="refresh" className="w-3 h-3" /></button>
     </span>
   );
 }
@@ -489,6 +489,35 @@ function CategoryIcon({ id, className }) {
   }
 }
 
+/* ============================== ICON SYSTEM ============================== */
+function Icon({ name, className }) {
+  const cls = className || 'w-5 h-5';
+  const s = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round', className: cls };
+  switch (name) {
+    case 'card':      return <svg {...s}><rect x="2.5" y="5" width="19" height="14" rx="2.5" /><line x1="2.5" y1="9.5" x2="21.5" y2="9.5" /><line x1="6" y1="14.5" x2="10" y2="14.5" /></svg>;
+    case 'mobile':    return <svg {...s}><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><line x1="10.5" y1="18.5" x2="13.5" y2="18.5" /></svg>;
+    case 'bank':      return <svg {...s}><path d="M12 3 3.5 7.5h17z" /><line x1="6" y1="11" x2="6" y2="16.5" /><line x1="10" y1="11" x2="10" y2="16.5" /><line x1="14" y1="11" x2="14" y2="16.5" /><line x1="18" y1="11" x2="18" y2="16.5" /><line x1="3.5" y1="20" x2="20.5" y2="20" /></svg>;
+    case 'wallet':    return <svg {...s}><rect x="3" y="6" width="18" height="13" rx="2.5" /><path d="M3 10.5h18" /><circle cx="16.5" cy="14.5" r="1.3" fill="currentColor" stroke="none" /></svg>;
+    case 'cash':      return <svg {...s}><rect x="2.5" y="6" width="19" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><line x1="6" y1="9.5" x2="6" y2="14.5" /><line x1="18" y1="9.5" x2="18" y2="14.5" /></svg>;
+    case 'store':     return <svg {...s}><path d="M4 9.5 5.5 4h13L20 9.5" /><path d="M4 9.5v9.5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9.5" /><path d="M4 9.5a2.5 2.5 0 0 0 4 0 2.5 2.5 0 0 0 4 0 2.5 2.5 0 0 0 4 0 2.5 2.5 0 0 0 4 0" /><path d="M9.5 20v-4.5h5V20" /></svg>;
+    case 'truck':     return <svg {...s}><path d="M3 6.5h11v9H3z" /><path d="M14 9.5h4l3 3v3h-7z" /><circle cx="7" cy="17.5" r="1.6" /><circle cx="17.5" cy="17.5" r="1.6" /></svg>;
+    case 'pin':       return <svg {...s}><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>;
+    case 'clock':     return <svg {...s}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>;
+    case 'package':   return <svg {...s}><path d="m12 3 8 4.5v9L12 21 4 16.5v-9z" /><path d="m4 7.5 8 4.5 8-4.5" /><path d="M12 12v9" /></svg>;
+    case 'check-circle': return <svg {...s}><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9.5" strokeWidth="2" /></svg>;
+    case 'x-circle':  return <svg {...s}><circle cx="12" cy="12" r="9" /><path d="M8.5 8.5 15.5 15.5M15.5 8.5 8.5 15.5" strokeWidth="2" /></svg>;
+    case 'lock':      return <svg {...s}><rect x="5" y="10.5" width="14" height="9" rx="2" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" /></svg>;
+    case 'refresh':   return <svg {...s}><path d="M4 10a8 8 0 0 1 13.5-3.3L20 9" /><path d="M20 4.5V9h-4.5" /><path d="M20 14a8 8 0 0 1-13.5 3.3L4 15" /><path d="M4 19.5V15h4.5" /></svg>;
+    case 'cart':      return <svg {...s}><circle cx="9" cy="20" r="1.5" /><circle cx="17" cy="20" r="1.5" /><path d="M2.5 4h2.2l2.3 11.2h9.8l1.7-8.2H6.3" /></svg>;
+    case 'heart':     return <svg {...s}><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>;
+    case 'search':    return <svg {...s}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>;
+    case 'flame':     return <svg {...s}><path d="M12 3c.5 3-2 4.5-2 7a2 2 0 0 0 4 0c0-.6-.2-1.2-.5-1.7 2 1 3.5 3 3.5 5.7a5 5 0 0 1-10 0c0-3.7 3-5.5 5-11z" /></svg>;
+    case 'file':      return <svg {...s}><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4" /><line x1="9.5" y1="12" x2="15" y2="12" /><line x1="9.5" y1="15.5" x2="15" y2="15.5" /></svg>;
+    case 'whatsapp':  return <svg viewBox="0 0 24 24" fill="currentColor" className={cls}><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>;
+    default: return null;
+  }
+}
+
 function ProductImage({ p, className }) {
   const cls = className || '';
   if (p.img) {
@@ -499,8 +528,8 @@ function ProductImage({ p, className }) {
     );
   }
   return (
-    <div className={'bg-gradient-to-br ' + p.tone + ' flex items-center justify-center select-none ' + cls + (/text-/.test(cls) ? '' : ' text-7xl')}>
-      <span className="drop-shadow-sm">{p.icon}</span>
+    <div className={'bg-neutral-100 flex items-center justify-center select-none ' + cls}>
+      <Icon name="package" className="w-1/3 h-1/3 text-neutral-300" />
     </div>
   );
 }
@@ -605,7 +634,7 @@ function ARViewModal({ p, onClose }) {
           {arCapable === true && (
             <div className="mt-4 flex gap-3">
               <button onClick={handleAR} className="flex-1 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-2xl py-3 transition-colors">
-                📱 Ver en AR
+                <Icon name="mobile" className="w-4 h-4 inline-block align-middle mr-1" /> Ver en AR
               </button>
               <button onClick={onClose} className="flex-1 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
             </div>
@@ -766,7 +795,7 @@ function MiTienda() {
   return (
     <div className="relative hidden lg:block">
       <button onClick={() => setOpen(!open)} className="text-left group">
-        <p className="text-[13px] font-bold flex items-center gap-1 group-hover:text-brand">📍 Mi tienda <span className="text-[9px] text-neutral-400">▼</span></p>
+        <p className="text-[13px] font-bold flex items-center gap-1 group-hover:text-brand"><Icon name="pin" className="w-4 h-4" /> Mi tienda <span className="text-[9px] text-neutral-400">▼</span></p>
         <p className="text-[11px] text-neutral-500 max-w-[130px] truncate">{sel ? sel.name : 'Elige tu tienda'}</p>
       </button>
       {open && (
@@ -777,7 +806,7 @@ function MiTienda() {
             {STORES.map((s) => (
               <button key={s.id} onClick={() => { setMyStore(s.id); setOpen(false); showToast('Tienda preferida: ' + s.name); }}
                 className={'w-full text-left rounded-xl border-2 p-3 transition-colors ' + (myStore === s.id ? 'border-brand bg-brand-light' : 'border-neutral-200 hover:border-neutral-300')}>
-                <p className="text-sm font-extrabold flex items-center gap-1.5">📍 {s.name} {myStore === s.id && <span className="text-brand text-xs">✓</span>}</p>
+                <p className="text-sm font-extrabold flex items-center gap-1.5"><Icon name="pin" className="w-4 h-4 text-brand shrink-0" /> {s.name} {myStore === s.id && <span className="text-brand text-xs">✓</span>}</p>
                 <p className="text-xs text-neutral-500 mt-0.5">{s.addr}</p>
                 <p className="text-[11px] text-neutral-400 mt-0.5">{s.hours}</p>
               </button>
@@ -802,7 +831,7 @@ function CategoryMegaMenu({ onClose, activeCat }) {
         </div>
         <button onClick={() => { navigate('category', { ofertas: true }); onClose(); }}
           className="w-full flex items-center justify-between px-5 py-3 text-brand font-extrabold text-lg hover:bg-brand-light transition-colors">
-          🔥 Campañas y ofertas
+          <Icon name="flame" className="w-5 h-5" /> Campañas y ofertas
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
         </button>
         <div className="border-t border-neutral-200 mx-5"></div>
@@ -847,7 +876,7 @@ function CategoryNav() {
           </button>
         ))}
         <div className="flex-1 min-w-[8px]"></div>
-        <button onClick={() => navigate('category', { ofertas: true })} className="px-2 py-3.5 text-[13px] font-extrabold text-brand whitespace-nowrap shrink-0">🔥 Ofertas</button>
+        <button onClick={() => navigate('category', { ofertas: true })} className="px-2 py-3.5 text-[13px] font-extrabold text-brand whitespace-nowrap shrink-0"><Icon name="flame" className="w-4 h-4" /> Ofertas</button>
       </div>
     </div>
   );
@@ -902,7 +931,7 @@ function Navbar() {
             ))}
             <button onClick={() => { navigate('category', { ofertas: true }); setMenu(false); }}
               className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-brand-light text-sm font-extrabold text-brand flex items-center gap-2.5">
-              <span>🔥</span>Ofertas
+              <Icon name="flame" className="w-4 h-4" />Ofertas
             </button>
             <div className="border-t border-neutral-100 pt-2 mt-2 space-y-1">
               <button onClick={() => { navigate('wishlist'); setMenu(false); }} className="w-full text-left px-3 py-2 text-sm font-semibold text-neutral-600">♡ Mis favoritos</button>
@@ -915,11 +944,11 @@ function Navbar() {
       <CategoryNav />
       <div className="bg-ink text-white text-[12px] md:text-[13px]">
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-start md:justify-center gap-4 md:gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
-          <span>📦 Envío gratis en Caracas</span>
+          <span className="flex items-center gap-1.5"><Icon name="package" className="w-3.5 h-3.5" /> Envío gratis en Caracas</span>
           <span className="text-white/30">|</span>
-          <span>🏪 Retira hoy en Las Mercedes o Chacao</span>
+          <span className="flex items-center gap-1.5"><Icon name="store" className="w-3.5 h-3.5" /> Retira hoy en Las Mercedes o Chacao</span>
           <span className="text-white/30">|</span>
-          <span>💳 Paga en cuotas con Cashea</span>
+          <span className="flex items-center gap-1.5"><Icon name="card" className="w-3.5 h-3.5" /> Paga en cuotas con Cashea</span>
           <span className="text-white/30 hidden lg:inline">|</span>
           <span className="hidden lg:inline"><TasaPill dark /></span>
         </div>
@@ -946,7 +975,7 @@ function Footer() {
           <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3">Nuestras tiendas</h4>
           {STORES.map((s) => (
             <div key={s.id} className="mb-4 text-sm">
-              <p className="font-semibold text-white">📍 {s.name}</p>
+              <p className="font-semibold text-white flex items-center gap-1.5"><Icon name="pin" className="w-3.5 h-3.5 shrink-0" /> {s.name}</p>
               <p className="text-neutral-400">{s.addr}</p>
               <p className="text-neutral-500 text-xs mt-0.5">{s.hours}</p>
             </div>
@@ -970,7 +999,7 @@ function Footer() {
             {CATEGORIES.map((c) => (
               <li key={c.id}><button onClick={() => navigate('category', { cat: c.id })} className="hover:text-brand transition-colors">{c.label}</button></li>
             ))}
-            <li><button onClick={() => navigate('category', { ofertas: true })} className="font-bold text-brand">🔥 Ofertas</button></li>
+            <li><button onClick={() => navigate('category', { ofertas: true })} className="font-bold text-brand"><Icon name="flame" className="w-4 h-4" /> Ofertas</button></li>
           </ul>
         </div>
       </div>
@@ -1081,7 +1110,7 @@ function CategoryPage({ cat = 'cocinas', query, ofertas }) {
 
   const brandOpts = [...new Set(base.map((p) => p.brand))];
   const showTipo = !query && !ofertas && cat === 'cocinas';
-  const title = ofertas ? '🔥 Ofertas de la semana' : query ? `Resultados para “${query}”` : catInfo.label;
+  const title = ofertas ? 'Ofertas de la semana' : query ? `Resultados para “${query}”` : catInfo.label;
 
   let items = base.filter((p) =>
     (fBrands.length === 0 || fBrands.includes(p.brand)) &&
@@ -1147,7 +1176,7 @@ function CategoryPage({ cat = 'cocinas', query, ofertas }) {
         <span className="font-semibold text-ink">{ofertas ? 'Ofertas' : query ? 'Búsqueda' : catInfo.label}</span>
       </nav>
       <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        <h1 className="text-2xl md:text-3xl font-extrabold">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold flex items-center gap-2">{ofertas && <Icon name="flame" className="w-7 h-7 text-brand" />}{title}</h1>
         <div className="flex items-center gap-2.5">
           <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden text-sm font-bold border border-neutral-300 rounded-full px-4 py-2 bg-white">⚙ Filtros</button>
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="text-sm font-semibold border border-neutral-300 rounded-full px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/40">
@@ -1173,7 +1202,7 @@ function CategoryPage({ cat = 'cocinas', query, ofertas }) {
           <p className="text-sm text-neutral-500 mb-3">{items.length} producto{items.length !== 1 ? 's' : ''}</p>
           {items.length === 0 ? (
             <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-              <p className="text-4xl mb-3">🔍</p>
+              <div className="w-16 h-16 mx-auto rounded-full bg-brand-light flex items-center justify-center text-brand/70 mb-3"><Icon name="search" className="w-8 h-8" /></div>
               <p className="font-bold">No encontramos productos con esos filtros</p>
               <p className="text-sm text-neutral-500 mt-1">Prueba ajustando los filtros o consúltanos por WhatsApp.</p>
             </div>
@@ -1202,7 +1231,7 @@ function WishlistPage() {
       <h1 className="text-2xl md:text-3xl font-extrabold mb-6">Mis favoritos <span className="text-neutral-400 font-semibold text-lg">({items.length})</span></h1>
       {items.length === 0 ? (
         <div className="bg-white rounded-2xl border border-neutral-200 p-14 text-center max-w-2xl mx-auto">
-          <p className="text-6xl mb-4">🤍</p>
+          <div className="w-20 h-20 mx-auto rounded-full bg-brand-light flex items-center justify-center text-brand/70 mb-4"><Icon name="heart" className="w-10 h-10" /></div>
           <h2 className="text-xl font-extrabold">Aún no tienes favoritos</h2>
           <p className="text-neutral-500 mt-2 text-sm">Toca el corazón en cualquier producto para guardarlo aquí.</p>
           <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5 transition-colors">Ver ofertas</button>
@@ -1292,7 +1321,7 @@ function ProductDetail({ id, openAR }) {
   const DocRow = ([name, meta]) => (
     <button key={name} onClick={() => showToast('Descarga simulada — prototipo')}
       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-neutral-200 hover:border-brand/50 hover:bg-brand-light/40 transition-colors text-left">
-      <span className="text-xl">📄</span>
+      <Icon name="file" className="w-5 h-5 text-neutral-400 shrink-0" />
       <span className="flex-1">
         <span className="block text-sm font-semibold text-ink">{name}</span>
         <span className="block text-[11px] text-neutral-400">{meta}</span>
@@ -1365,10 +1394,10 @@ function ProductDetail({ id, openAR }) {
           <div className="mt-5 space-y-1.5 text-sm">
             {STORES.map((s) => (
               <p key={s.id} className={p.locs.includes(s.id) ? 'text-green-700' : 'text-neutral-400'}>
-                {p.locs.includes(s.id) ? '✅' : '✖️'} {p.locs.includes(s.id) ? `Disponible en ${s.name} (retiro hoy)` : `Agotado en ${s.name}`}
+                {p.locs.includes(s.id) ? <Icon name="check-circle" className="w-4 h-4 text-green-600 inline-block mr-1" /> : <Icon name="x-circle" className="w-4 h-4 text-neutral-400 inline-block mr-1" />}{p.locs.includes(s.id) ? `Disponible en ${s.name} (retiro hoy)` : `Agotado en ${s.name}`}
               </p>
             ))}
-            <p className="text-neutral-600">🚚 Envío a Caracas: <strong className="text-green-700">gratis</strong> · Envío nacional: consultar</p>
+            <p className="text-neutral-600 flex items-center gap-1.5"><Icon name="truck" className="w-4 h-4 shrink-0" /> Envío a Caracas: <strong className="text-green-700">gratis</strong> · Envío nacional: consultar</p>
           </div>
 
           {/* Delivery options */}
@@ -1495,7 +1524,7 @@ function CartPage() {
   if (lines.length === 0) {
     return (
       <main className="page-enter max-w-3xl mx-auto px-4 mt-16 text-center">
-        <p className="text-6xl mb-4">🛒</p>
+        <div className="w-20 h-20 mx-auto rounded-full bg-brand-light flex items-center justify-center text-brand/70 mb-4"><Icon name="cart" className="w-10 h-10" /></div>
         <h1 className="text-2xl font-extrabold">Tu carrito está vacío</h1>
         <p className="text-neutral-500 mt-2">Descubre las mejores marcas para tu hogar.</p>
         <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5 transition-colors">
@@ -1593,12 +1622,12 @@ function Stepper({ step }) {
 }
 
 const PAY_METHODS = [
-  { id: 'tarjeta', icon: '💳', title: 'Tarjeta internacional', sub: 'Visa / Mastercard / Amex' },
-  { id: 'pagomovil', icon: '📱', title: 'Pago Móvil', sub: 'Transferencia bancaria inmediata' },
-  { id: 'zelle', icon: '💵', title: 'Zelle', sub: 'Transferencia en dólares desde EE.UU.' },
-  { id: 'transferencia', icon: '🏦', title: 'Transferencia bancaria', sub: 'Banesco / Mercantil / Venezuela' },
-  { id: 'cashea', icon: '📲', title: 'Cashea', sub: 'Compra ahora, paga después' },
-  { id: 'efectivo', icon: '💶', title: 'Efectivo en tienda', sub: 'Paga al retirar en la sucursal' },
+  { id: 'tarjeta', icon: 'card', title: 'Tarjeta internacional', sub: 'Visa / Mastercard / Amex' },
+  { id: 'pagomovil', icon: 'mobile', title: 'Pago Móvil', sub: 'Transferencia bancaria inmediata' },
+  { id: 'zelle', icon: 'cash', title: 'Zelle', sub: 'Transferencia en dólares desde EE.UU.' },
+  { id: 'transferencia', icon: 'bank', title: 'Transferencia bancaria', sub: 'Banesco / Mercantil / Venezuela' },
+  { id: 'cashea', icon: 'wallet', title: 'Cashea', sub: 'Compra ahora, paga después' },
+  { id: 'efectivo', icon: 'cash', title: 'Efectivo en tienda', sub: 'Paga al retirar en la sucursal' },
 ];
 
 const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand';
@@ -1641,7 +1670,7 @@ function Checkout() {
   if (lines.length === 0 && !order) {
     return (
       <main className="page-enter max-w-3xl mx-auto px-4 mt-16 text-center">
-        <p className="text-6xl mb-4">🛒</p>
+        <div className="w-20 h-20 mx-auto rounded-full bg-brand-light flex items-center justify-center text-brand/70 mb-4"><Icon name="cart" className="w-10 h-10" /></div>
         <h1 className="text-2xl font-extrabold">No tienes productos en el carrito</h1>
         <button onClick={() => navigate('category', { ofertas: true })} className="mt-6 bg-brand hover:bg-brand-dark text-white font-bold rounded-full px-8 py-3.5">Explorar ofertas</button>
       </main>
@@ -1739,8 +1768,8 @@ function Checkout() {
 
           <div className="mt-6 bg-brand-light border border-brand/30 rounded-2xl p-4 text-sm text-left">
             {order.mode === 'retiro'
-              ? <p>🏪 Tu pedido estará listo en <strong>{storeInfo.name}</strong> en aprox. <strong>2 horas</strong>. Te avisaremos por WhatsApp.</p>
-              : <p>🚚 Tu pedido será despachado en las próximas <strong>24 horas</strong>. Te avisaremos por WhatsApp cuando esté en camino.</p>}
+              ? <p className="flex items-center gap-2"><Icon name="store" className="w-5 h-5 shrink-0" /> Tu pedido estará listo en <strong>{storeInfo.name}</strong> en aprox. <strong>2 horas</strong>. Te avisaremos por WhatsApp.</p>
+              : <p className="flex items-center gap-2"><Icon name="truck" className="w-5 h-5 shrink-0" /> Tu pedido será despachado en las próximas <strong>24 horas</strong>. Te avisaremos por WhatsApp cuando esté en camino.</p>}
           </div>
 
           <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
@@ -1767,11 +1796,11 @@ function Checkout() {
             <div className="bg-white border border-neutral-200 rounded-2xl p-5 md:p-7">
               <h1 className="text-xl font-extrabold mb-5">¿Cómo quieres recibir tu pedido?</h1>
               <div className="grid grid-cols-2 gap-3 mb-6">
-                {[{ id: 'retiro', icon: '🏪', label: 'Retiro en tienda' }, { id: 'envio', icon: '🚚', label: 'Envío a domicilio' }].map((m) => (
+                {[{ id: 'retiro', icon: 'store', label: 'Retiro en tienda' }, { id: 'envio', icon: 'truck', label: 'Envío a domicilio' }].map((m) => (
                   <button key={m.id} onClick={() => setMode(m.id)}
                     className={'rounded-2xl border-2 p-4 text-sm font-bold flex flex-col items-center gap-1.5 transition-colors ' +
                       (mode === m.id ? 'border-brand bg-brand-light text-brand-dark' : 'border-neutral-200 hover:border-neutral-300')}>
-                    <span className="text-2xl">{m.icon}</span>{m.label}
+                    <Icon name={m.icon} className="w-6 h-6" />{m.label}
                   </button>
                 ))}
               </div>
@@ -1801,7 +1830,7 @@ function Checkout() {
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wide">Estado</label>
                     <input className={inputCls + ' mt-1'} value={form.estado} onChange={set('estado')} />
                   </div>
-                  <p className="sm:col-span-2 text-xs text-neutral-500">📦 Envío <strong className="text-green-600">gratis</strong> en Caracas. Para envío nacional calcularemos el costo antes de despachar.</p>
+                  <p className="sm:col-span-2 text-xs text-neutral-500 flex items-center gap-1"><Icon name="package" className="w-4 h-4 text-brand shrink-0" /> Envío <strong className="text-green-600">gratis</strong> en Caracas. Para envío nacional calcularemos el costo antes de despachar.</p>
                 </div>
               ) : (
                 <div>
@@ -1810,10 +1839,10 @@ function Checkout() {
                     {STORES.map((s) => (
                       <button key={s.id} onClick={() => setStore(s.id)}
                         className={'text-left rounded-2xl border-2 p-4 transition-colors ' + (store === s.id ? 'border-brand bg-brand-light' : 'border-neutral-200 hover:border-neutral-300')}>
-                        <p className="font-extrabold text-sm flex items-center gap-2">📍 {s.name} {store === s.id && <span className="text-brand text-xs">✓ Seleccionada</span>}</p>
+                        <p className="font-extrabold text-sm flex items-center gap-2"><Icon name="pin" className="w-4 h-4 text-brand shrink-0" /> {s.name} {store === s.id && <span className="text-brand text-xs">✓ Seleccionada</span>}</p>
                         <p className="text-xs text-neutral-500 mt-1">{s.addr}</p>
                         <p className="text-xs text-neutral-400 mt-1">{s.hours}</p>
-                        <p className="text-xs font-bold text-green-600 mt-2">⏱ Listo para retiro en ~2 horas</p>
+                        <p className="text-xs font-bold text-green-600 mt-2 flex items-center gap-1"><Icon name="clock" className="w-3.5 h-3.5" /> Listo para retiro en ~2 horas</p>
                       </button>
                     ))}
                   </div>
@@ -1847,7 +1876,7 @@ function Checkout() {
                           : selected ? (isCashea ? 'border-yellow-400 bg-yellow-50 cursor-pointer' : 'border-brand bg-brand-light cursor-pointer')
                           : (isCashea ? 'border-yellow-300 bg-yellow-50/50 hover:border-yellow-400 cursor-pointer' : 'border-neutral-200 hover:border-neutral-300 cursor-pointer'))}>
                       <div className="flex items-center gap-3.5 px-4 py-3.5">
-                        <span className="text-2xl">{m.icon}</span>
+                        <Icon name={m.icon} className="w-6 h-6 text-ink shrink-0" />
                         <div className="flex-1">
                           <p className="font-bold text-sm flex items-center gap-2">
                             {m.title}
@@ -1868,7 +1897,7 @@ function Checkout() {
                               <input className={inputCls + ' col-span-2'} placeholder="Número de tarjeta  ····  ····  ····  ····" />
                               <input className={inputCls} placeholder="MM/AA" />
                               <input className={inputCls} placeholder="CVV" />
-                              <p className="col-span-2 text-[11px] text-neutral-400">🔒 Pago seguro · Visa, Mastercard y Amex</p>
+                              <p className="col-span-2 text-[11px] text-neutral-400 flex items-center gap-1"><Icon name="lock" className="w-3.5 h-3.5" /> Pago seguro · Visa, Mastercard y Amex</p>
                             </div>
                           )}
                           {m.id === 'pagomovil' && (
@@ -1878,7 +1907,7 @@ function Checkout() {
                                 <p><strong>RIF:</strong> J-404684034</p>
                                 <p><strong>Teléfono:</strong> 0412-555-0123</p>
                               </div>
-                              <p className="text-[11px] text-neutral-500">📲 Envía tu comprobante por WhatsApp al <strong>+58 414-2556786</strong></p>
+                              <p className="text-[11px] text-neutral-500 flex items-center gap-1"><Icon name="whatsapp" className="w-3.5 h-3.5 text-green-500" /> Envía tu comprobante por WhatsApp al <strong>+58 414-2556786</strong></p>
                             </div>
                           )}
                           {m.id === 'zelle' && (
@@ -1886,7 +1915,7 @@ function Checkout() {
                               <div className="bg-white rounded-xl border border-neutral-200 p-3 text-xs">
                                 <p><strong>Zelle:</strong> pagos@alkosto.com.ve</p>
                               </div>
-                              <p className="text-[11px] text-neutral-500">📲 Envía el comprobante por WhatsApp para confirmar tu pago</p>
+                              <p className="text-[11px] text-neutral-500 flex items-center gap-1"><Icon name="whatsapp" className="w-3.5 h-3.5 text-green-500" /> Envía el comprobante por WhatsApp para confirmar tu pago</p>
                             </div>
                           )}
                           {m.id === 'transferencia' && (
@@ -1897,7 +1926,7 @@ function Checkout() {
                                 <p><strong>Venezuela:</strong> 0102-0000-00-0000000000 · Alkosto C.A.</p>
                                 <p><strong>RIF:</strong> J-404684034</p>
                               </div>
-                              <p className="text-[11px] text-neutral-500">📲 Envía el comprobante por WhatsApp para confirmar tu pago</p>
+                              <p className="text-[11px] text-neutral-500 flex items-center gap-1"><Icon name="whatsapp" className="w-3.5 h-3.5 text-green-500" /> Envía el comprobante por WhatsApp para confirmar tu pago</p>
                             </div>
                           )}
                           {m.id === 'cashea' && (
