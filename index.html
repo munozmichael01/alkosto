@@ -51,6 +51,12 @@ const usd = (n) => '$' + n.toLocaleString('en-US');
 const bsEq = (n) => 'Bs. ' + (n * BCV).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const cuotaMes = (p) => Math.round(p / 6);
 const WHATSAPP = 'https://wa.me/584142556786';
+const waLink = (p) => {
+  const msg = p
+    ? `Hola, me interesa el ${p.name} (Ref: ${p.id}). ¿Tienen disponibilidad?`
+    : 'Hola, quisiera información sobre los productos de Alkosto.';
+  return `${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+};
 
 const STORES = [
   { id: 'mercedes', name: 'Las Mercedes', addr: 'Av. Las Mercedes, entre Calle París y Calle Trinidad, Caracas', hours: 'Lun–Sáb 9:00 am – 7:00 pm · Dom 10:00 am – 4:00 pm' },
@@ -712,7 +718,7 @@ function SearchBox({ small }) {
       {open && q.length >= 2 && (
         <div className="drop-enter absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-neutral-200 shadow-xl z-50 overflow-hidden">
           {!hasResults && (
-            <p className="px-4 py-4 text-sm text-neutral-500">Sin resultados para “{search}”. Prueba con otra palabra o <a href={WHATSAPP} target="_blank" rel="noopener" className="text-green-600 font-bold">consúltanos por WhatsApp</a>.</p>
+            <p className="px-4 py-4 text-sm text-neutral-500">Sin resultados para "{search}". Prueba con otra palabra o <a href={waLink()} target="_blank" rel="noopener" className="text-green-600 font-bold">consúltanos por WhatsApp</a>.</p>
           )}
           {catMatches.map((c) => (
             <button key={c.id} type="button" onMouseDown={() => go(() => navigate('category', { cat: c.id }))}
@@ -942,7 +948,7 @@ function Footer() {
         </div>
         <div>
           <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-3">Atención</h4>
-          <a href={WHATSAPP} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-sm rounded-full px-4 py-2.5 transition-colors">
+          <a href={waLink()} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-sm rounded-full px-4 py-2.5 transition-colors">
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
             Escríbenos por WhatsApp
           </a>
@@ -974,7 +980,7 @@ function Footer() {
 
 function WhatsAppFab() {
   return (
-    <a href={WHATSAPP} target="_blank" rel="noopener" aria-label="WhatsApp"
+    <a href={waLink()} target="_blank" rel="noopener" aria-label="WhatsApp"
       className="fixed bottom-5 right-5 z-40 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl shadow-green-500/30 flex items-center justify-center hover:scale-105 transition-all">
       <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
     </a>
@@ -1386,7 +1392,7 @@ function ProductDetail({ id, openAR }) {
           <button onClick={() => addToCart(p.id)} className="mt-5 w-full bg-brand hover:bg-brand-dark text-white font-bold text-base rounded-2xl py-4 shadow-lg shadow-brand/25 transition-colors">
             Agregar al carrito
           </button>
-          <a href={WHATSAPP} target="_blank" rel="noopener" className="mt-3 w-full border-2 border-green-500 text-green-600 hover:bg-green-50 font-bold text-sm rounded-2xl py-3.5 flex items-center justify-center gap-2 transition-colors">
+          <a href={waLink(p)} target="_blank" rel="noopener" className="mt-3 w-full border-2 border-green-500 text-green-600 hover:bg-green-50 font-bold text-sm rounded-2xl py-3.5 flex items-center justify-center gap-2 transition-colors">
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5 13.9c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1a13 13 0 0 1-5.7-5 6 6 0 0 1-1.2-3c0-.6.2-1.2.6-1.6.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.2.2-.3.4-.1.7.5.8 1.1 1.5 1.8 2.1.6.5 1.2.9 1.9 1.2.3.1.5.1.7-.1l.6-.7c.2-.2.4-.3.6-.2l2 1c.2.1.4.2.4.3.1.3.1.7-.2 1z" /></svg>
             Consultar por WhatsApp
           </a>
