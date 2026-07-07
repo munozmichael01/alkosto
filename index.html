@@ -36,6 +36,7 @@
 <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.23.2/babel.min.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-neutral-100 font-sans text-ink antialiased">
 <div id="root"></div>
@@ -494,18 +495,39 @@ function ProductImage({ p, className }) {
 
 function ARViewModal({ p, onClose }) {
   const mvRef = useRef(null);
+  const qrRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
+  const [arCapable, setArCapable] = useState(null);
+  const [qrOpen, setQrOpen] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [captureMsg, setCaptureMsg] = useState('');
   const modelSrc = 'images/3D/' + p.id + '.glb';
+  const qrUrl = 'https://alkosto.vercel.app/?p=' + p.id;
 
   useEffect(() => {
     const mv = mvRef.current;
     if (!mv) return;
-    const onLoad = () => setLoaded(true);
+    if (typeof mv.canActivateAR === 'boolean') setArCapable(mv.canActivateAR);
+    const onLoad = () => {
+      setLoaded(true);
+      setArCapable(mv.canActivateAR);
+    };
     mv.addEventListener('load', onLoad);
     return () => mv.removeEventListener('load', onLoad);
   }, []);
+
+  useEffect(() => {
+    if (!qrOpen || !qrRef.current || typeof QRCode === 'undefined') return;
+    qrRef.current.innerHTML = '';
+    new QRCode(qrRef.current, {
+      text: qrUrl,
+      width: 160,
+      height: 160,
+      colorDark: '#2C2C2C',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  }, [qrOpen, qrUrl]);
 
   const handleAR = () => {
     const mv = mvRef.current;
@@ -567,12 +589,50 @@ function ARViewModal({ p, onClose }) {
             Gira el modelo con un dedo · Usa dos dedos para acercar
           </p>
           {captureMsg && <p className="text-xs text-brand mt-2 font-semibold">{captureMsg}</p>}
-          <div className="mt-4 flex gap-3">
-            <button onClick={handleAR} disabled={!loaded} className="flex-1 bg-brand hover:bg-brand-dark disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3 transition-colors">
-              {!loaded ? 'Cargando…' : '📱 Ver en AR'}
-            </button>
-            <button onClick={onClose} className="flex-1 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
-          </div>
+
+          {arCapable === true && (
+            <div className="mt-4 flex gap-3">
+              <button onClick={handleAR} className="flex-1 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-2xl py-3 transition-colors">
+                📱 Ver en AR
+              </button>
+              <button onClick={onClose} className="flex-1 border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
+            </div>
+          )}
+
+          {arCapable === false && (
+            <div className="mt-4">
+              <div className="border border-neutral-200 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => setQrOpen((o) => !o)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-ink hover:bg-neutral-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/><rect x="14" y="14" width="3" height="3" fill="currentColor" stroke="none"/><rect x="18" y="14" width="3" height="3" fill="currentColor" stroke="none"/><rect x="14" y="18" width="3" height="3" fill="currentColor" stroke="none"/><rect x="18" y="18" width="3" height="3" fill="currentColor" stroke="none"/></svg>
+                    Vista previa en realidad aumentada
+                  </span>
+                  <svg viewBox="0 0 24 24" className={'w-4 h-4 shrink-0 transition-transform duration-200 ' + (qrOpen ? 'rotate-180' : '')} fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
+                {qrOpen && (
+                  <div className="border-t border-neutral-100 px-4 pb-4 pt-3 flex flex-col items-center">
+                    <p className="text-sm text-neutral-500 mb-3 text-center">Escanea este código QR para verlo en tu hogar</p>
+                    <div ref={qrRef} className="rounded-xl overflow-hidden" />
+                    <p className="text-[10px] text-neutral-400 mt-2 text-center break-all">{qrUrl}</p>
+                  </div>
+                )}
+              </div>
+              <button onClick={onClose} className="mt-3 w-full border-2 border-neutral-200 hover:border-brand/50 text-ink font-bold text-sm rounded-2xl py-3 transition-colors">Cerrar</button>
+            </div>
+          )}
+
+          {arCapable === null && (
+            <div className="mt-4 flex gap-3">
+              <button disabled className="flex-1 bg-brand disabled:opacity-60 text-white font-bold text-sm rounded-2xl py-3">
+                Cargando…
+              </button>
+              <button onClick={onClose} className="flex-1 border-2 border-neutral-200 text-ink font-bold text-sm rounded-2xl py-3">Cerrar</button>
+            </div>
+          )}
+
           <button onClick={handleShare} disabled={capturing || !loaded} className="mt-2 w-full text-xs text-neutral-400 hover:text-neutral-600 disabled:opacity-40 py-1 transition-colors">
             {capturing ? 'Generando imagen…' : '↗ Compartir captura'}
           </button>
@@ -1182,13 +1242,13 @@ function DimsDiagram({ dims }) {
   );
 }
 
-function ProductDetail({ id }) {
+function ProductDetail({ id, openAR }) {
   const { navigate, addToCart, myStore, showToast } = useApp();
   const p = PRODUCTS.find((x) => x.id === id) || PRODUCTS[0];
   const [delivery, setDelivery] = useState('retiro');
   const [store, setStore] = useState(myStore && p.locs.includes(myStore) ? myStore : p.locs[0]);
   const [tab, setTab] = useState('desc');
-  const [showAR, setShowAR] = useState(false);
+  const [showAR, setShowAR] = useState(!!openAR);
   const inicial = Math.round(p.price / 6);
   const cuota = Math.round((p.price - inicial) / 6);
   const related = PRODUCTS.filter((x) => x.id !== p.id && x.cat === p.cat).slice(0, 4);
@@ -1848,6 +1908,11 @@ function App() {
 
   const navigate = (name, opts = {}) => { setPage({ name, ...opts, key: Date.now() }); window.scrollTo({ top: 0 }); };
 
+  useEffect(() => {
+    const pid = new URLSearchParams(window.location.search).get('p');
+    if (pid && MODELS_3D.has(pid)) navigate('product', { id: pid, openAR: true });
+  }, []);
+
   const showToast = (msg) => {
     setToast(msg);
     clearTimeout(window.__toastT);
@@ -1875,7 +1940,7 @@ function App() {
         <div className="flex-1" key={page.key}>
           {page.name === 'home' && <Home />}
           {page.name === 'category' && <CategoryPage cat={page.cat} query={page.query} ofertas={page.ofertas} />}
-          {page.name === 'product' && <ProductDetail id={page.id} />}
+          {page.name === 'product' && <ProductDetail id={page.id} openAR={page.openAR} />}
           {page.name === 'cart' && <CartPage />}
           {page.name === 'checkout' && <Checkout />}
           {page.name === 'wishlist' && <WishlistPage />}
